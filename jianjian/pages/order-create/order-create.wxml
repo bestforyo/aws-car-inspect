@@ -1,0 +1,84 @@
+<view class="page">
+  <view class="stepper">
+    <view class="step {{step>=1?'done':''}}"><text>1</text>车辆资料</view>
+    <view class="step-line"></view>
+    <view class="step {{step>=2?'done':''}}"><text>2</text>选择标准</view>
+    <view class="step-line"></view>
+    <view class="step {{step>=3?'done':''}}"><text>3</text>检测类型</view>
+  </view>
+
+  <!-- 步骤1：车辆资料 -->
+  <view wx:if="{{step===1}}" class="step-body">
+    <view class="eyebrow">VEHICLE INFO</view>
+    <view class="h2">车辆资料</view>
+    <view class="desc">在现场检测章节中不再录入车辆资料，请在此先维护。</view>
+    <view class="card form-card">
+      <view class="field-label">车牌号码</view>
+      <input class="field" placeholder="如 沪A·12345" value="{{plate}}" bindinput="onField" data-k="plate" />
+      <view class="field-label">车架号 VIN</view>
+      <input class="field" placeholder="17 位车架号" value="{{vin}}" bindinput="onField" data-k="vin" />
+      <view class="field-label">品牌车型</view>
+      <input class="field" placeholder="如 丰田 凯美瑞 2020款" value="{{brandModel}}" bindinput="onField" data-k="brandModel" />
+      <view class="field-label">车辆种类</view>
+      <view class="kind-row">
+        <view class="kind-chip {{kind==='PASSENGER_CAR'?'active':''}}" bindtap="setKind" data-k="PASSENGER_CAR">乘用车</view>
+        <view class="kind-chip {{kind==='MOTORCYCLE'?'active':''}}" bindtap="setKind" data-k="MOTORCYCLE">摩托车</view>
+      </view>
+    </view>
+    <button class="btn btn-primary btn-block next-btn" bindtap="nextStep">下一步：{{kind==='PASSENGER_CAR'?'选择标准':'选择套餐'}}</button>
+  </view>
+
+  <!-- 步骤2：选择标准（仅乘用车） -->
+  <view wx:if="{{step===2}}" class="step-body">
+    <view class="eyebrow">STANDARD</view>
+    <view class="h2">选择检测标准</view>
+    <view class="desc">国标与团标对应不同检测清单，选择后展示对应的五种业务类型。</view>
+    <view class="standard-list">
+      <view class="standard-card" bindtap="chooseStandard" data-s="NATIONAL">
+        <view class="std-badge">GB</view>
+        <view class="std-title">按国家标准配置的检测模板</view>
+        <view class="std-desc">国家标准 · GB/T 30323-2013 及专项</view>
+        <view class="std-arrow">→</view>
+      </view>
+      <view class="standard-card group" bindtap="chooseStandard" data-s="GROUP">
+        <view class="std-badge">TB</view>
+        <view class="std-title">按团体标准配置的检测模板</view>
+        <view class="std-desc">行业团体标准 · 团标检</view>
+        <view class="std-arrow">→</view>
+      </view>
+    </view>
+    <view class="btn btn-ghost btn-block next-btn" bindtap="prevStep">返回上一步</view>
+  </view>
+
+  <!-- 步骤3：检测类型（乘用车）或套餐（摩托车） -->
+  <view wx:if="{{step===3}}" class="step-body">
+    <view class="eyebrow">PACKAGE · {{standard==='NATIONAL'?'国标':'团标'}}</view>
+    <view class="h2">{{kind==='PASSENGER_CAR'?'选择检测类型':'选择摩托车套餐'}}</view>
+    <view class="desc">选择可用类型后立即创建订单并进入现场检测，无方案确认页。</view>
+
+    <view wx:if="{{kind==='PASSENGER_CAR'}}" class="package-list">
+      <view wx:for="{{packages}}" wx:key="key" class="package-card {{item.disabled?'disabled':''}}" bindtap="choosePackage" data-key="{{item.key}}" data-disabled="{{item.disabled}}">
+        <view class="pkg-main">
+          <view class="pkg-title">{{item.name}}</view>
+          <view class="pkg-desc">{{item.desc}}</view>
+          <view class="pkg-meta">{{item.modules}} 模块 · {{item.count}} 项</view>
+        </view>
+        <view wx:if="{{item.disabled}}" class="pkg-building">正在建设中，敬请期待</view>
+        <view wx:else class="pkg-arrow">→</view>
+      </view>
+    </view>
+
+    <view wx:else class="package-list">
+      <view wx:for="{{motoPackages}}" wx:key="key" class="package-card" bindtap="choosePackage" data-key="{{item.key}}">
+        <view class="pkg-main">
+          <view class="pkg-title">{{item.name}}</view>
+          <view class="pkg-desc">{{item.desc}}</view>
+          <view class="pkg-meta">{{item.count}} 项</view>
+        </view>
+        <view class="pkg-arrow">→</view>
+      </view>
+    </view>
+
+    <view class="btn btn-ghost btn-block next-btn" bindtap="prevStep">返回上一步</view>
+  </view>
+</view>

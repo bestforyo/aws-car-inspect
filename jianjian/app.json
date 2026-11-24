@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/login/login",
+    "pages/order-create/order-create",
+    "pages/inspection/inspection",
+    "pages/orders/orders",
+    "pages/review/review",
+    "pages/review-detail/review-detail",
+    "pages/mine/mine",
+    "pages/report/report",
+    "pages/admin-org/admin-org",
+    "pages/admin-members/admin-members",
+    "pages/admin-templates/admin-templates",
+    "pages/admin-reports/admin-reports"
+  ],
+  "window": {
+    "navigationBarTitleText": "鉴见 · 车辆检测",
+    "navigationBarBackgroundColor": "#203B42",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F5F7F5",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#8D999C",
+    "selectedColor": "#376D57",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      { "pagePath": "pages/index/index", "text": "首页" },
+      { "pagePath": "pages/orders/orders", "text": "订单" },
+      { "pagePath": "pages/review/review", "text": "审核" },
+      { "pagePath": "pages/mine/mine", "text": "我的" }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
+}

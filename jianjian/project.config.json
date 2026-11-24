@@ -1,0 +1,25 @@
+{
+  "description": "鉴见 · 车辆检测 SaaS 平台检测师与机构管理员端",
+  "packOptions": {
+    "ignore": [
+      {
+        "type": "folder",
+        "value": ".workbuddy"
+      }
+    ],
+    "include": []
+  },
+  "setting": {
+    "bundle": false,
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": false,
+    "packNpmManually": false,
+    "packNpmRelationList": []
+  },
+  "compileType": "miniprogram",
+  "appid": "touristappid",
+  "projectname": "jianjian-vehicle-inspection",
+  "miniprogramRoot": "./"
+}

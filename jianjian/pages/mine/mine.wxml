@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="profile card">
+    <view class="avatar">{{avatarLetter}}</view>
+    <view class="profile-info">
+      <view class="h3">{{displayName}}</view>
+      <view class="muted">{{roleLabel}} · {{orgName || '未加入机构'}}</view>
+    </view>
+  </view>
+
+  <view class="workspace card">
+    <view class="row-between">
+      <view><view class="eyebrow">WORKSPACE</view><view class="h3">机构工作空间</view></view>
+      <view class="tag tag-success">{{orgCode || '—'}}</view>
+    </view>
+    <view class="desc">机构编码可用于邀请检测师加入</view>
+  </view>
+
+  <view class="group">
+    <view class="group-title">报告与订单</view>
+    <view class="menu card">
+      <view class="menu-item" bindtap="goOrders"><text>📋</text><text class="flex-1">我的订单</text><text class="arrow">→</text></view>
+      <view class="menu-item" bindtap="goReview"><text>🔍</text><text class="flex-1">审核进度</text><text class="arrow">→</text></view>
+      <view class="menu-item" bindtap="goReports"><text>📄</text><text class="flex-1">历史报告</text><text class="arrow">→</text></view>
+    </view>
+  </view>
+
+  <view wx:if="{{isAdmin}}" class="group">
+    <view class="group-title">机构管理（仅机构管理员）</view>
+    <view class="menu card">
+      <view class="menu-item" bindtap="goAdmin" data-p="admin-org"><text>🏢</text><text class="flex-1">机构资料与 Logo</text><text class="arrow">→</text></view>
+      <view class="menu-item" bindtap="goAdmin" data-p="admin-members"><text>👥</text><text class="flex-1">成员与角色</text><text class="arrow">→</text></view>
+      <view class="menu-item" bindtap="goAdmin" data-p="admin-templates"><text>🧩</text><text class="flex-1">检测模板</text><text class="arrow">→</text></view>
+      <view class="menu-item" bindtap="goAdmin" data-p="admin-reports"><text>🔗</text><text class="flex-1">报告与分享管理</text><text class="arrow">→</text></view>
+    </view>
+  </view>
+
+  <view class="group">
+    <view class="group-title">其他</view>
+    <view class="menu card">
+      <view class="menu-item" bindtap="help"><text>❓</text><text class="flex-1">帮助与说明</text><text class="arrow">→</text></view>
+      <view class="menu-item logout" bindtap="logout"><text>🚪</text><text class="flex-1">退出登录</text><text class="arrow">→</text></view>
+    </view>
+  </view>
+
+  <view class="version">鉴见 · INSPECTION STUDIO · 版本 1.0</view>
+</view>

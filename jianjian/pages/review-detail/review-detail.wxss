@@ -1,0 +1,34 @@
+.head .h2 { margin-top: 14rpx; }
+.head-meta { display: flex; gap: 24rpx; font-size: 22rpx; color: var(--muted); margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid var(--line); }
+.alert-stack { margin-top: 20rpx; }
+.alert-banner { display: flex; gap: 14rpx; padding: 18rpx 22rpx; border-radius: 12rpx; margin-bottom: 14rpx; }
+.alert-banner.accident, .alert-banner.fire { background: rgba(200,120,97,0.12); border-left: 6rpx solid var(--return); }
+.alert-banner.water { background: rgba(189,136,81,0.12); border-left: 6rpx solid var(--warning); }
+.alert-icon { width: 36rpx; height: 36rpx; border-radius: 50%; background: var(--return); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+.alert-banner.water .alert-icon { background: var(--warning); }
+.alert-title { font-size: 26rpx; font-weight: 700; }
+.alert-text { font-size: 22rpx; color: var(--text); }
+.return-card { margin-top: 20rpx; border-left: 6rpx solid var(--return); }
+.return-text { font-size: 26rpx; color: var(--text); margin-top: 12rpx; }
+.sec-head { margin-bottom: 16rpx; }
+.ri { padding: 16rpx 0; border-top: 1rpx solid var(--line); }
+.ri-top { display: flex; justify-content: space-between; font-size: 26rpx; }
+.ri-name { color: var(--text); }
+.ri-result { font-weight: 600; }
+.ri.green .ri-result { color: var(--success); }
+.ri.red .ri-result { color: var(--return); }
+.ri.yellow .ri-result { color: var(--warning); }
+.ri-th, .ri-note { font-size: 22rpx; color: var(--muted); margin-top: 6rpx; }
+.ri-photos { display: flex; gap: 12rpx; margin-top: 10rpx; }
+.ri-photos image { width: 120rpx; height: 120rpx; border-radius: 8rpx; }
+.review-actions { margin-top: 24rpx; }
+.action-btns { display: flex; gap: 20rpx; margin-top: 20rpx; }
+.action-btns .btn { flex: 1; }
+.self-warn { font-size: 22rpx; color: var(--warning); margin-top: 16rpx; }
+.share-card { margin-top: 24rpx; }
+.share-result { margin-top: 20rpx; padding: 20rpx; background: var(--canvas); border-radius: 12rpx; }
+.share-label { font-size: 22rpx; color: var(--muted); }
+.share-code { font-size: 24rpx; word-break: break-all; margin: 12rpx 0; color: var(--primary-deep); }
+.modal-mask { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: flex-end; z-index: 50; }
+.modal { width: 100%; background: #fff; border-radius: 24rpx 24rpx 0 0; padding: 36rpx 28rpx 60rpx; }
+.return-input { width: 100%; min-height: 180rpx; background: var(--canvas); border-radius: 12rpx; padding: 20rpx; font-size: 26rpx; margin-top: 20rpx; }

@@ -1,0 +1,84 @@
+<view class="page-nopad inspect">
+  <view class="inspect-head">
+    <view class="row-between">
+      <view class="order-no">{{order.order_no || '—'}}</view>
+      <view class="tag {{statusCls}}">{{statusLabel}}</view>
+    </view>
+    <view class="inspect-title">{{order.package_name || '现场检测'}}</view>
+    <view class="inspect-sub">{{order.plate || '待录入车牌'}} · {{templateModules.length}} 模块 · {{totalItems}} 项 · 版本 v{{order.revision_no||1}}</view>
+    <view wx:if="{{locked}}" class="locked-tip">该版本已提交审核，不可编辑</view>
+  </view>
+
+  <scroll-view class="section-tabs" scroll-x>
+    <view class="sec-tab {{idx===activeSectionIdx?'active':''}}" wx:for="{{templateModules}}" wx:for-index="idx" wx:key="name" bindtap="switchSection" data-idx="{{idx}}">{{item.name}}</view>
+  </scroll-view>
+
+  <view wx:if="{{alerts.length>0}}" class="alert-stack">
+    <view wx:for="{{alerts}}" wx:key="type" class="alert-banner {{item.type}}">
+      <view class="alert-icon">!</view>
+      <view class="alert-body"><view class="alert-title">{{item.title}}</view><view class="alert-text">{{item.text}}</view></view>
+    </view>
+  </view>
+
+  <view class="items-wrap">
+    <view class="section-intro">
+      <view class="eyebrow">SECTION {{activeSectionIdx+1}} · CHECKLIST</view>
+      <view class="h3">{{currentSection.name}}</view>
+      <view class="desc">请逐项填写检测结果；异常结果需附现场照片。未检查不计为完成。</view>
+      <view class="section-progress">本章节已完成 {{sectionDone}}/{{currentSection.items.length}} 项</view>
+    </view>
+
+    <view wx:for="{{currentSection.items}}" wx:for-index="i" wx:key="n" class="item-card {{item.color}}">
+      <view class="item-head">
+        <view class="item-index">{{i+1 < 10 ? '0' : ''}}{{i+1}}</view>
+        <view class="item-name-wrap">
+          <view class="item-name">{{item.n}}</view>
+          <view wx:if="{{item.m}}" class="item-material">{{item.m}}</view>
+        </view>
+        <view wx:if="{{item.d==='关键决定项'}}" class="crit-badge">关键</view>
+      </view>
+
+      <view wx:if="{{!locked}}" class="options">
+        <view wx:for="{{item.o}}" wx:for-item="opt" wx:key="*this"
+              class="opt {{item.answer.result===opt?'sel':''}} {{item.m==='金属件'?'metal':''}} {{item.m==='塑料件'?'plastic':''}}"
+              bindtap="chooseResult" data-idx="{{i}}" data-opt="{{opt}}">{{opt}}</view>
+      </view>
+      <view wx:else class="locked-result">结果：{{item.answer.result || '未检查'}}</view>
+
+      <view wx:if="{{item.d==='关键决定项' && item.answer.result && item.answer.result!=='正常' && item.answer.result!=='待检查'}}" class="threshold-box">
+        <view class="threshold-label">尺寸判定（必填）</view>
+        <view class="threshold-opts">
+          <view wx:for="{{thresholdOptions}}" wx:for-item="th" wx:key="*this"
+                class="th-opt {{item.answer.threshold===th?'sel':''}}" bindtap="chooseThreshold" data-idx="{{i}}" data-th="{{th}}">{{th}}</view>
+        </view>
+        <view wx:if="{{item.answer.threshold==='大于30cm×30cm'}}" class="threshold-warn">大于阈值，将标记为事故车提示</view>
+      </view>
+
+      <view wx:if="{{item.needNote}}" class="note-box">
+        <view class="note-label">{{item.noteLabel}}</view>
+        <textarea class="note-input" placeholder="请填写说明" value="{{item.answer.note||''}}" bindinput="onNote" data-idx="{{i}}" disabled="{{locked}}" />
+      </view>
+
+      <view class="photo-box">
+        <view class="photo-head">现场照片 <text wx:if="{{item.abnormal}}" class="required">异常项必附</text></view>
+        <view class="photo-list">
+          <view wx:for="{{item.answer.photos}}" wx:for-item="pic" wx:for-index="pi" wx:key="*this" class="photo-thumb">
+            <image src="{{pic}}" mode="aspectFill" bindtap="previewPhoto" data-idx="{{i}}" data-pi="{{pi}}" />
+            <view wx:if="{{!locked}}" class="photo-del" bindtap="removePhoto" data-idx="{{i}}" data-pi="{{pi}}">×</view>
+          </view>
+          <view wx:if="{{!locked}}" class="photo-add" bindtap="addPhoto" data-idx="{{i}}">＋</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="bottom-hint">章节内项目编号从 01 重新计数，顺序与模板配置一致。</view>
+  </view>
+
+  <view class="action-bar safe-bottom">
+    <view class="progress-mini">总进度 {{doneCount}}/{{totalItems}}</view>
+    <view class="action-btns">
+      <button class="btn btn-ghost" bindtap="saveDraft" disabled="{{locked}}">保存草稿</button>
+      <button class="btn btn-primary" bindtap="submit" disabled="{{locked}}">提交审核</button>
+    </view>
+  </view>
+</view>

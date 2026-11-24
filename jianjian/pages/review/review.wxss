@@ -1,0 +1,14 @@
+.head { margin-bottom: 24rpx; }
+.head .h1 { margin-top: 8rpx; }
+.sub-tabs { display: flex; gap: 16rpx; margin-bottom: 24rpx; }
+.sub { padding: 14rpx 28rpx; background: #fff; border-radius: 999rpx; color: var(--muted); font-size: 26rpx; }
+.sub.active { background: var(--primary); color: #fff; }
+.rcard { padding: 26rpx 28rpx; }
+.order-no { font-size: 23rpx; color: var(--muted); }
+.r-title { font-size: 32rpx; font-weight: 700; color: var(--brand-900); margin: 12rpx 0 6rpx; }
+.r-meta { font-size: 24rpx; color: var(--muted); }
+.return-note { font-size: 24rpx; color: var(--return); background: rgba(200,120,97,0.08); padding: 14rpx; border-radius: 8rpx; margin-top: 14rpx; }
+.r-foot { display: flex; justify-content: space-between; font-size: 22rpx; color: var(--muted); margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid var(--line); }
+.r-foot .act { color: var(--primary); }
+.empty { text-align: center; padding: 72rpx; }
+.empty-icon { font-size: 64rpx; }

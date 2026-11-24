@@ -1,0 +1,25 @@
+<view class="page">
+  <view wx:if="{{!isAdmin}}" class="card"><view class="h3">无权限</view></view>
+  <block wx:else>
+    <view class="head"><view class="eyebrow">TEMPLATES</view><view class="h1">检测模板</view><view class="desc">模板清单为示范配置，正式启用前须经专业人员逐项审核</view></view>
+    <view class="filter-row">
+      <view wx:for="{{kinds}}" wx:key="*this" class="fchip {{kind===item?'active':''}}" bindtap="setKind" data-k="{{item}}">{{item}}</view>
+    </view>
+    <view wx:for="{{list}}" wx:key="id" class="card tpl">
+      <view class="row-between">
+        <view class="t-name">{{item.name}}</view>
+        <view class="tag {{item.status==='published'?'tag-success':'tag-muted'}}">{{item.status==='published'?'已发布':'草稿'}}</view>
+      </view>
+      <view class="t-desc">{{item.description}}</view>
+      <view class="t-meta">{{item.sections.length}} 模块 · {{item.itemCount}} 项 · {{item.standardType}}</view>
+      <view class="module-tags">
+        <text wx:for="{{item.sections}}" wx:for-item="s" wx:key="*this">{{s}}</text>
+      </view>
+    </view>
+    <view class="card note-card">
+      <view class="eyebrow">PROFESSIONAL REVIEW</view>
+      <view class="h3">标准清单治理</view>
+      <view class="desc">国标/团标 PDF 附件的版本、授权与适用范围须由机构确认；检查项、判定用语与必拍证据须由专业人员审核后发布。系统不根据示范项目自动推断评级或合规结论。</view>
+    </view>
+  </block>
+</view>

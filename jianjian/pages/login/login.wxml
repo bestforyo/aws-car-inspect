@@ -1,0 +1,42 @@
+<view class="login-page">
+  <view class="brand-block">
+    <view class="brand-mark">鉴</view>
+    <view class="brand-name">鉴见</view>
+    <view class="brand-en">INSPECTION STUDIO</view>
+    <view class="brand-sub">可信赖 · 克制 · 现场专业 · 清晰留痕</view>
+  </view>
+
+  <view wx:if="{{!loggedIn}}" class="login-card card">
+    <view class="eyebrow">SIGN IN</view>
+    <view class="h2">检测师登录</view>
+    <view class="desc">使用微信登录后，可创建机构或凭机构码加入工作空间。</view>
+    <button class="btn btn-primary btn-block login-btn" bindtap="onWechatLogin" loading="{{loading}}" disabled="{{loading}}">微信登录</button>
+    <view wx:if="{{errorMsg}}" class="error-tip">{{errorMsg}}</view>
+    <view class="demo-tip">预览环境未绑定企业小程序时，微信登录可能不可用；正式上线绑定后即可正常登录。</view>
+  </view>
+
+  <view wx:else class="setup-card card">
+    <view class="eyebrow">WORKSPACE</view>
+    <view class="h2">选择工作空间</view>
+    <view class="user-line">当前账号：{{displayName}}</view>
+
+    <view class="tab-row">
+      <view class="tab {{tab==='create'?'active':''}}" bindtap="switchTab" data-tab="create">创建机构</view>
+      <view class="tab {{tab==='join'?'active':''}}" bindtap="switchTab" data-tab="join">加入机构</view>
+    </view>
+
+    <block wx:if="{{tab==='create'}}">
+      <input class="field" placeholder="机构名称" value="{{orgName}}" bindinput="onOrgName" />
+      <input class="field" placeholder="机构编码（唯一，如 JIANJIAN01）" value="{{orgCode}}" bindinput="onOrgCode" />
+      <view class="desc small">创建后你将成为该机构的机构管理员，可管理成员、模板与审核。</view>
+      <button class="btn btn-primary btn-block" bindtap="onCreateOrg" loading="{{loading}}" disabled="{{loading}}">创建并进入</button>
+    </block>
+
+    <block wx:else>
+      <input class="field" placeholder="输入机构编码" value="{{joinCode}}" bindinput="onJoinCode" />
+      <view class="desc small">作为检测师加入机构，执行检测任务。</view>
+      <button class="btn btn-primary btn-block" bindtap="onJoinOrg" loading="{{loading}}" disabled="{{loading}}">加入机构</button>
+    </block>
+    <view wx:if="{{errorMsg}}" class="error-tip">{{errorMsg}}</view>
+  </view>
+</view>

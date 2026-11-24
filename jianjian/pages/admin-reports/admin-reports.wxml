@@ -1,0 +1,33 @@
+<view class="page">
+  <view wx:if="{{!isAdmin}}" class="card"><view class="h3">无权限</view></view>
+  <block wx:else>
+    <view class="head"><view class="eyebrow">REPORTS & SHARES</view><view class="h1">报告与分享管理</view><view class="desc">已发布报告的高熵令牌链接、有效期与撤销</view></view>
+
+    <view wx:for="{{reports}}" wx:key="id" class="card report-card">
+      <view class="row-between">
+        <view class="r-no">{{item.report_no}}</view>
+        <view class="tag tag-success">已发布</view>
+      </view>
+      <view class="r-title">{{item.orderNo || '检测报告'}} · {{item.plate || '—'}}</view>
+      <view class="r-time">签发于 {{item.timeText}}</view>
+      <button class="btn btn-ghost btn-block mini-btn" bindtap="viewReport" data-id="{{item.id}}">查看报告</button>
+
+      <view class="shares">
+        <view class="shares-head">分享链接</view>
+        <view wx:for="{{item.shares}}" wx:for-item="s" wx:key="id" class="share-row">
+          <view class="s-token">{{s.token_hash}}</view>
+          <view class="s-meta">{{s.status==='active'?'有效':'已撤销'}} · 至 {{s.expireText}}</view>
+          <text wx:if="{{s.status==='active'}}" class="revoke" bindtap="revoke" data-id="{{s.id}}">撤销</text>
+        </view>
+        <button class="btn btn-primary btn-block mini-btn" bindtap="createShare" data-id="{{item.id}}">生成新链接（30天）</button>
+        <view wx:if="{{item.newToken}}" class="new-token">
+          <view class="nt-label">新令牌（仅显示一次）</view>
+          <view class="nt-code">{{item.newToken}}</view>
+          <button class="btn btn-ghost" bindtap="copy" data-token="{{item.newToken}}">复制</button>
+        </view>
+      </view>
+    </view>
+
+    <view wx:if="{{reports.length===0}}" class="empty card"><view class="desc">暂无已发布报告</view></view>
+  </block>
+</view>

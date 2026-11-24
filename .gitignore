@@ -1,0 +1,21 @@
+# 依赖与构建产物
+node_modules/
+dist/
+*.tsbuildinfo
+
+# WorkBuddy 本地项目数据、应用卡与记忆（含本地绝对路径，不入库）
+.workbuddy/
+*.genie
+
+# 用户提供的原型参考副本，非本项目交付物
+vehicle-inspection/
+
+# 模板数据生成过程的中间脚本与产物（模板库已固化在 utils/templates-lib.js）
+jianjian/_*.mjs
+jianjian/_seed_templates.sql
+
+# 系统 / 编辑器
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

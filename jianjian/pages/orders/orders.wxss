@@ -1,0 +1,15 @@
+.head { margin-bottom: 24rpx; }
+.head .h1 { margin-top: 8rpx; }
+.head .desc { margin-top: 8rpx; }
+.filters { white-space: nowrap; margin-bottom: 24rpx; }
+.filter { display: inline-block; padding: 14rpx 28rpx; margin-right: 16rpx; border-radius: 999rpx; background: #fff; color: var(--muted); font-size: 26rpx; }
+.filter.active { background: var(--primary); color: #fff; }
+.order { padding: 26rpx 28rpx; }
+.order-no { font-size: 23rpx; color: var(--muted); }
+.order-title { font-size: 32rpx; font-weight: 700; color: var(--brand-900); margin: 12rpx 0 8rpx; }
+.order-info { font-size: 24rpx; color: var(--muted); }
+.dot { margin: 0 12rpx; }
+.order-foot { display: flex; justify-content: space-between; font-size: 22rpx; color: var(--muted); margin-top: 16rpx; padding-top: 16rpx; border-top: 1rpx solid var(--line); }
+.order-foot .act { color: var(--primary); }
+.empty { text-align: center; padding: 64rpx; }
+.empty-icon { font-size: 64rpx; }

@@ -1,0 +1,25 @@
+<view class="page">
+  <view wx:if="{{!isAdmin}}" class="card"><view class="h3">无权限</view><view class="desc">仅机构管理员可访问</view></view>
+  <block wx:else>
+    <view class="head"><view class="eyebrow">ORGANIZATION</view><view class="h1">机构资料</view><view class="desc">机构名称、品牌 Logo 与报告免责声明</view></view>
+    <view class="card form-card">
+      <view class="field-label">机构名称</view>
+      <input class="field" value="{{name}}" bindinput="onField" data-k="name" />
+      <view class="field-label">机构编码</view>
+      <input class="field" value="{{code}}" disabled />
+      <view class="field-label">报告免责声明</view>
+      <textarea class="field textarea" value="{{disclaimer}}" bindinput="onField" data-k="disclaimer" placeholder="报告中将展示的免责声明" />
+      <view class="field-label">品牌 Logo</view>
+      <button class="btn btn-ghost btn-block" bindtap="chooseLogo">上传 Logo</button>
+      <view wx:if="{{logoUrl}}" class="logo-preview"><image src="{{logoUrl}}" mode="aspectFit" /></view>
+      <button class="btn btn-primary btn-block save-btn" bindtap="save" loading="{{saving}}" disabled="{{saving}}">保存修改</button>
+    </view>
+    <view class="card">
+      <view class="eyebrow">STATUS</view>
+      <view class="h3">机构状态</view>
+      <view class="summary-row"><text>状态</text><text>{{statusText}}</text></view>
+      <view class="summary-row"><text>套餐</text><text>{{planId || '默认套餐'}}</text></view>
+      <view class="summary-row"><text>到期日</text><text>{{expireText}}</text></view>
+    </view>
+  </block>
+</view>

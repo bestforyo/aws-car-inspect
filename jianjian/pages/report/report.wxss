@@ -1,0 +1,28 @@
+.cover { position: relative; background: linear-gradient(160deg, #172E39, #264C40); color: #fff; padding: 60rpx 40rpx 80rpx; min-height: 520rpx; border-radius: 0 0 40rpx 40rpx; overflow: hidden; }
+.cover-brand { font-size: 34rpx; font-weight: 700; }
+.cover-brand text { font-size: 18rpx; color: var(--accent); letter-spacing: 3rpx; margin-left: 12rpx; }
+.cover-org { font-size: 24rpx; color: rgba(255,255,255,0.7); margin-top: 60rpx; }
+.cover-title { font-size: 52rpx; font-weight: 700; margin-top: 8rpx; }
+.cover-no { font-size: 24rpx; color: var(--accent); margin-top: 12rpx; letter-spacing: 2rpx; }
+.cover-seal { position: absolute; right: 40rpx; bottom: 120rpx; width: 180rpx; height: 180rpx; border: 4rpx solid rgba(215,237,159,0.5); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: rgba(215,237,159,0.65); font-size: 24rpx; letter-spacing: 2rpx; transform: rotate(-12deg); text-align: center; }
+.cover-foot { position: absolute; bottom: 40rpx; left: 40rpx; font-size: 22rpx; color: rgba(255,255,255,0.7); line-height: 1.8; }
+.report-body { padding: 32rpx 28rpx 80rpx; margin-top: -40rpx; position: relative; z-index: 2; }
+.summary-row { display: flex; justify-content: space-between; font-size: 26rpx; padding: 14rpx 0; border-bottom: 1rpx solid var(--line); }
+.summary-row text:first-child { color: var(--muted); }
+.summary-alerts { margin-top: 20rpx; }
+.sa { font-size: 24rpx; padding: 14rpx; border-radius: 8rpx; margin-bottom: 10rpx; }
+.sa.accident, .sa.fire { background: rgba(200,120,97,0.1); color: var(--return); }
+.sa.water { background: rgba(189,136,81,0.1); color: var(--warning); }
+.summary-ok { margin-top: 20rpx; font-size: 24rpx; color: var(--success); }
+.ri { padding: 14rpx 0; border-bottom: 1rpx solid var(--line); }
+.ri-top { display: flex; justify-content: space-between; font-size: 26rpx; }
+.rv.green { color: var(--success); font-weight: 600; }
+.rv.red { color: var(--return); font-weight: 600; }
+.rv.yellow { color: var(--warning); font-weight: 600; }
+.ri-sub { font-size: 22rpx; color: var(--muted); margin-top: 6rpx; }
+.photo-group { margin-top: 20rpx; }
+.pg-name { font-size: 24rpx; color: var(--muted); }
+.pg-photos { display: flex; gap: 12rpx; flex-wrap: wrap; margin-top: 10rpx; }
+.pg-photos image { width: 140rpx; height: 140rpx; border-radius: 8rpx; }
+.signoff { text-align: right; font-size: 22rpx; color: var(--muted); line-height: 1.9; margin-top: 32rpx; }
+.share-btn { margin-top: 32rpx; }

@@ -1,0 +1,76 @@
+<view class="page-nopad home">
+  <view class="hero">
+    <view class="hero-track"></view>
+    <view class="hero-inner">
+      <view class="hero-eyebrow">WELCOME BACK</view>
+      <view class="hero-title">现场检测，清晰留痕</view>
+      <view class="hero-sub">鉴见 · 车辆检测工作台</view>
+      <view class="hero-meta">
+        <text class="hero-chip">{{roleLabel}}</text>
+        <text class="hero-chip ghost">{{orgName || '未加入机构'}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="home-body">
+    <view class="section-head">
+      <view><view class="eyebrow">NEW INSPECTION</view><view class="h2">开始检测</view></view>
+    </view>
+    <view class="entry-grid">
+      <view class="entry car" bindtap="onPassenger">
+        <view class="entry-icon">🚗</view>
+        <view class="entry-title">乘用车检测</view>
+        <view class="entry-desc">国标 / 团标 · 整车与专项排查</view>
+        <view class="entry-arrow">→</view>
+      </view>
+      <view class="entry moto" bindtap="onMotorcycle">
+        <view class="entry-icon">🏍️</view>
+        <view class="entry-title">摩托车检测</view>
+        <view class="entry-desc">二手车鉴定评估 · 整车检测</view>
+        <view class="entry-arrow">→</view>
+      </view>
+    </view>
+
+    <view class="lookup card">
+      <view class="row-between">
+        <view><view class="eyebrow">VEHICLE LOOKUP</view><view class="h3">车辆信息查询</view></view>
+        <view class="tag tag-muted">接口未配置</view>
+      </view>
+      <view class="desc">按车架号 / 车牌查询车辆档案（演示占位，未接入第三方服务）</view>
+      <view class="lookup-row">
+        <input class="lookup-input" placeholder="输入车架号或车牌" value="{{lookupValue}}" bindinput="onLookupInput" />
+        <button class="lookup-btn" bindtap="onLookup">查询</button>
+      </view>
+      <view wx:if="{{lookupMsg}}" class="lookup-msg">{{lookupMsg}}</view>
+    </view>
+
+    <view class="stat-grid">
+      <view class="stat card"><view class="stat-num">{{todayCount}}</view><view class="stat-label">今日任务</view></view>
+      <view class="stat card"><view class="stat-num">{{pendingCount}}</view><view class="stat-label">待检测</view></view>
+      <view class="stat card"><view class="stat-num">{{reviewCount}}</view><view class="stat-label">待审核</view></view>
+      <view class="stat card"><view class="stat-num">{{doneCount}}</view><view class="stat-label">已完成</view></view>
+    </view>
+
+    <view class="section-head recent-head">
+      <view><view class="eyebrow">RECENT ORDERS</view><view class="h2">最近订单</view></view>
+      <view class="more" bindtap="goOrders">全部 →</view>
+    </view>
+    <view wx:if="{{recentOrders.length===0}}" class="empty card">
+      <view class="empty-icon">📋</view>
+      <view class="desc">暂无订单，点击上方入口开始第一次检测</view>
+    </view>
+    <view wx:for="{{recentOrders}}" wx:key="id" class="order-card card" bindtap="openOrder" data-id="{{item.id}}">
+      <view class="row-between">
+        <view class="order-no">{{item.order_no}}</view>
+        <view class="tag {{item.statusCls}}">{{item.statusLabel}}</view>
+      </view>
+      <view class="order-title">{{item.package_name}} · {{item.plate || '待录入车牌'}}</view>
+      <view class="order-foot">
+        <text>{{item.vehicle_kind === 'PASSENGER_CAR' ? '乘用车' : '摩托车'}}</text>
+        <text>{{item.timeText}}</text>
+      </view>
+    </view>
+
+    <view class="disclaimer">检测项目为示范清单，正式标准与判定须经机构专业人员审核后启用。</view>
+  </view>
+</view>

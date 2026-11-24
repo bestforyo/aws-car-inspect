@@ -1,0 +1,33 @@
+<view class="page">
+  <view class="head">
+    <view class="eyebrow">REVIEW CENTER</view>
+    <view class="h1">{{isAdmin?'审核中心':'审核进度'}}</view>
+    <view class="desc">{{isAdmin?'审阅待审核检测版本，通过或附意见退回':'查看本人提交报告的审核进度'}}</view>
+  </view>
+
+  <block wx:if="{{isAdmin}}">
+    <view class="sub-tabs">
+      <view class="sub {{tab==='pending'?'active':''}}" bindtap="setTab" data-t="pending">待审核 ({{pendingList.length}})</view>
+      <view class="sub {{tab==='done'?'active':''}}" bindtap="setTab" data-t="done">已处理</view>
+    </view>
+  </block>
+
+  <view wx:if="{{list.length===0}}" class="empty card">
+    <view class="empty-icon">✅</view>
+    <view class="desc">{{isAdmin?'暂无待审核报告':'暂无提交记录'}}</view>
+  </view>
+
+  <view wx:for="{{list}}" wx:key="id" class="rcard card" bindtap="open" data-id="{{item.id}}" data-status="{{item.status}}">
+    <view class="row-between">
+      <view class="order-no">{{item.order_no}}</view>
+      <view class="tag {{item.statusCls}}">{{item.statusLabel}}</view>
+    </view>
+    <view class="r-title">{{item.package_name}}</view>
+    <view class="r-meta">{{item.plate || '待录入车牌'}} · {{item.vehicleLabel}}</view>
+    <view wx:if="{{item.returnComment}}" class="return-note">退回意见：{{item.returnComment}}</view>
+    <view class="r-foot">
+      <text>{{item.timeText}}</text>
+      <text class="act">{{isAdmin && tab==='pending'?'进入审核 →':'查看详情 →'}}</text>
+    </view>
+  </view>
+</view>

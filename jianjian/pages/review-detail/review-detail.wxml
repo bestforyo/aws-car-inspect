@@ -1,0 +1,83 @@
+<view class="page">
+  <view class="head card">
+    <view class="row-between">
+      <view class="order-no">{{order.order_no || '—'}}</view>
+      <view class="tag {{statusCls}}">{{statusLabel}}</view>
+    </view>
+    <view class="h2">{{order.package_name || '检测报告'}}</view>
+    <view class="desc">{{order.plate || '待录入车牌'}} · {{order.brand_model || '未填写车型'}}</view>
+    <view class="head-meta">
+      <text>版本 v{{order.revision_no||1}}</text>
+      <text>提交 {{submitTime}}</text>
+    </view>
+  </view>
+
+  <!-- 异常提示 -->
+  <view wx:if="{{alerts.length>0}}" class="alert-stack">
+    <view wx:for="{{alerts}}" wx:key="type" class="alert-banner {{item.type}}">
+      <view class="alert-icon">!</view>
+      <view><view class="alert-title">{{item.title}}</view><view class="alert-text">{{item.text}}</view></view>
+    </view>
+  </view>
+
+  <!-- 退回意见 -->
+  <view wx:if="{{returnComment}}" class="return-card card">
+    <view class="eyebrow">RETURN COMMENT</view>
+    <view class="h3">审核退回意见</view>
+    <view class="return-text">{{returnComment}}</view>
+  </view>
+
+  <!-- 检测结果（只读） -->
+  <view class="card" wx:for="{{sections}}" wx:key="name">
+    <view class="sec-head"><view class="eyebrow">SECTION</view><view class="h3">{{item.name}}</view></view>
+    <view wx:for="{{item.items}}" wx:for-item="it" wx:key="n" class="ri {{it.color}}">
+      <view class="ri-top">
+        <text class="ri-name">{{it.n}}</text>
+        <text class="ri-result">{{it.answer.result || '未检查'}}</text>
+      </view>
+      <view wx:if="{{it.answer.threshold}}" class="ri-th">尺寸：{{it.answer.threshold}}</view>
+      <view wx:if="{{it.answer.note}}" class="ri-note">说明：{{it.answer.note}}</view>
+      <view wx:if="{{it.answer.photos.length>0}}" class="ri-photos">
+        <image wx:for="{{it.answer.photos}}" wx:for-item="pic" wx:key="*this" src="{{pic}}" mode="aspectFill" bindtap="preview" data-url="{{pic}}" />
+      </view>
+    </view>
+  </view>
+
+  <!-- 审核操作（仅机构管理员 + 待审核） -->
+  <view wx:if="{{canReview}}" class="review-actions card">
+    <view class="eyebrow">REVIEW ACTION</view>
+    <view class="h3">审核操作</view>
+    <view class="desc">通过后生成不可变正式报告；退回必须填写明确意见。</view>
+    <view class="action-btns">
+      <button class="btn btn-ghost" bindtap="showReturn">退回修改</button>
+      <button class="btn btn-primary" bindtap="approve">通过并发布</button>
+    </view>
+    <view wx:if="{{selfReviewWarn}}" class="self-warn">注意：你本人提交的检测版本不应由你审核，请交由另一位机构管理员复核。</view>
+  </view>
+
+  <!-- 已发布：分享 -->
+  <view wx:if="{{order.status==='PUBLISHED'}}" class="card share-card">
+    <view class="eyebrow">SHARE REPORT</view>
+    <view class="h3">报告分享</view>
+    <view class="desc">生成高熵令牌链接，委托人无需登录即可只读查看。</view>
+    <button class="btn btn-primary btn-block" bindtap="createShare">生成分享链接</button>
+    <view wx:if="{{shareToken}}" class="share-result">
+      <view class="share-label">分享令牌（仅显示一次，请复制保存）</view>
+      <view class="share-code">{{shareToken}}</view>
+      <button class="btn btn-ghost" bindtap="copyShare">复制令牌</button>
+    </view>
+  </view>
+
+  <!-- 退回弹层 -->
+  <view wx:if="{{showReturnModal}}" class="modal-mask" bindtap="closeReturn">
+    <view class="modal" catchtap="noop">
+      <view class="h3">退回修改</view>
+      <view class="desc">请填写明确的修改意见，检测师将据此创建修订版本。</view>
+      <textarea class="return-input" placeholder="如：请补充右前翼子板近照并核验里程照片" value="{{returnInput}}" bindinput="onReturnInput" />
+      <view class="action-btns">
+        <button class="btn btn-ghost" bindtap="closeReturn">取消</button>
+        <button class="btn btn-primary" bindtap="doReturn">确认退回</button>
+      </view>
+    </view>
+  </view>
+</view>

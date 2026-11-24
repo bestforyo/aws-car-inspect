@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>鉴见 · 平台运营后台</title>
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<style>
+:root{
+  --ink:#20333e;--muted:#8d999c;--subtle:#b1babc;--line:#e9edeb;--paper:#fff;
+  --green:#376d57;--green-deep:#264c40;--lime:#d7ed9f;--blue:#477d9a;--amber:#bd8851;--coral:#c87861;
+  --shadow:0 12px 40px rgb(34 52 62 / 5%);
+  --brand900:#172e39;
+  font-family:"Microsoft YaHei","PingFang SC","Noto Sans SC",sans-serif;
+  color:#23343e;background:#f5f7f5;font-synthesis:none;text-rendering:optimizeLegibility;
+}
+*{box-sizing:border-box}
+body{margin:0;min-width:350px;min-height:100vh}
+button,input,select{font:inherit}
+button{color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid rgb(88 142 112 / 35%);outline-offset:2px}
+.app-shell{min-height:100vh}
+.hidden{display:none!important}
+
+/* ---------- 侧栏 ---------- */
+.sidebar{background:var(--brand900);bottom:0;color:#f5f8f6;display:flex;flex-direction:column;left:0;padding:27px 19px 16px;position:fixed;top:0;width:248px;z-index:20}
+.brand-lockup{align-items:center;background:transparent;border:0;color:inherit;display:flex;cursor:pointer;gap:12px;padding:0 6px;text-align:left}
+.brand-lockup>span:last-child{display:grid;gap:2px}
+.brand-lockup strong{font-size:19px;letter-spacing:1.7px}
+.brand-lockup small{color:#8ca09f;font-size:8px;letter-spacing:1.1px}
+.brand-mark{align-items:center;background:var(--lime);border-radius:12px 4px 12px 4px;display:inline-flex;height:35px;justify-content:center;position:relative;transform:rotate(-8deg);width:35px;flex:none}
+.brand-mark__dot{background:var(--green-deep);border:2px solid #fff;border-radius:50%;height:12px;position:absolute;right:7px;top:7px;width:12px}
+.brand-mark__line{background:var(--green-deep);border-radius:3px;height:3px;left:7px;position:absolute;top:22px;transform:rotate(-28deg);width:21px}
+.platform-switch{align-items:center;background:rgb(255 255 255 / 5%);border:1px solid rgb(255 255 255 / 8%);border-radius:11px;color:#dbe5e1;display:flex;gap:10px;margin-top:37px;padding:11px 9px;width:100%}
+.platform-switch>div:nth-child(2){display:grid;flex:1;gap:3px}
+.platform-switch strong{font-size:11px;font-weight:600}
+.platform-switch small{color:#869c9a;font-size:10px}
+.platform-switch svg{color:#879d9c;flex:none}
+.platform-avatar{align-items:center;background:#d9e7d4;border-radius:8px;color:#365444;display:flex;font-size:13px;font-weight:700;height:32px;justify-content:center;width:32px;flex:none}
+.sidebar-label{color:#79908e;font-size:10px;letter-spacing:1.3px;margin:34px 0 10px 9px;text-transform:uppercase}
+.side-nav{display:grid;gap:5px}
+.side-nav__item{align-items:center;background:transparent;border:0;border-radius:9px;color:#a7b7b3;cursor:pointer;display:flex;font-size:12px;gap:12px;min-height:42px;padding:0 11px;text-align:left;transition:.18s ease;width:100%}
+.side-nav__item:hover{background:rgb(255 255 255 / 5%);color:#fff}
+.side-nav__item.is-active{background:#2b484d;color:#e0edc0}
+.side-nav__item>span{flex:1}
+.side-nav__item b{align-items:center;background:#d7ed9f;border-radius:20px;color:#254537;display:flex;font-size:10px;height:19px;justify-content:center;min-width:19px;padding:0 5px}
+.sidebar-bottom{margin-top:auto}
+.upgrade-card{background:linear-gradient(140deg,#274740,#244047);border:1px solid rgb(216 237 159 / 12%);border-radius:12px;display:grid;gap:7px;margin-bottom:17px;padding:13px}
+.upgrade-card__icon{align-items:center;background:rgb(216 237 159 / 13%);border-radius:7px;color:#d8ed9f;display:flex;height:28px;justify-content:center;width:28px}
+.upgrade-card>strong{color:#ebf1df;font-size:11px;margin-top:2px}
+.upgrade-card>span{color:#a3b8ad;font-size:10px}
+.upgrade-card>button{align-items:center;background:transparent;border:0;color:#d5e8a4;cursor:pointer;display:flex;font-size:10px;gap:4px;margin-top:4px;padding:0}
+.user-switch{align-items:center;background:transparent;border:0;border-top:1px solid rgb(255 255 255 / 9%);color:inherit;cursor:pointer;display:flex;gap:10px;padding:15px 3px 1px;text-align:left;width:100%}
+.user-switch>span:nth-child(2){display:grid;flex:1;gap:3px}
+.user-switch strong{color:#e4ece8;font-size:11px}
+.user-switch small{color:#899e9b;font-size:10px}
+.user-switch>svg{color:#79908e;flex:none}
+.avatar{align-items:center;background:#dce8df;border:2px solid #fff;border-radius:50%;color:#456251;display:inline-flex;flex:none;font-size:12px;font-weight:700;height:35px;justify-content:center;width:35px}
+.avatar--small{cursor:pointer;height:32px;width:32px}
+.avatar--tiny{border:0;font-size:10px;height:23px;width:23px}
+
+/* ---------- 主区 ---------- */
+.main-area{margin-left:248px;min-height:100vh;padding:0 38px}
+.topbar{align-items:center;border-bottom:1px solid #e8ece8;display:flex;height:67px;justify-content:space-between}
+.breadcrumb{align-items:center;color:#97a2a3;display:flex;font-size:11px;gap:9px}
+.breadcrumb strong{color:#35474e;font-weight:600}
+.topbar-right{align-items:center;color:#89989a;display:flex;font-size:10px;gap:8px}
+.connection-dot,.today-badge>span,.tenant-status i{background:#7ea78b;border-radius:50%;display:inline-block;height:7px;width:7px}
+.topbar-help{align-items:center;background:transparent;border:0;color:#77868a;cursor:pointer;display:flex;font-size:11px;gap:6px;margin:0 12px 0 16px}
+.topbar-help:hover,.text-link:hover{color:var(--green)}
+.page-content{margin:0 auto;max-width:1180px;min-height:calc(100vh - 112px);padding:30px 0 54px}
+.app-footer{border-top:1px solid #e8ece8;color:#a0aaaa;display:flex;font-size:9px;justify-content:space-between;margin:0 auto;max-width:1180px;padding:15px 0 19px}
+.eyebrow{color:#9aa8a6;font-size:9px;font-weight:600;letter-spacing:1.4px}
+.page-heading{align-items:flex-end;display:flex;justify-content:space-between;margin:11px 0 27px}
+.page-heading h1{color:#243941;font-size:27px;font-weight:700;letter-spacing:-.8px;margin:7px 0 6px}
+.page-heading p{color:#839194;font-size:11px;margin:0}
+.page-heading__action{display:flex;justify-content:flex-end}
+.button{align-items:center;border:1px solid transparent;border-radius:8px;cursor:pointer;display:inline-flex;font-size:11px;font-weight:600;gap:7px;justify-content:center;min-height:37px;padding:0 14px;transition:.18s ease;white-space:nowrap}
+.button--primary{background:var(--green);box-shadow:0 4px 10px rgb(55 109 87 / 12%);color:#fff}
+.button--primary:hover{background:#2d5a48;box-shadow:0 5px 16px rgb(55 109 87 / 20%);transform:translateY(-1px)}
+.button--secondary{background:#fff;border-color:#e4e9e5;color:#536368}
+.button--secondary:hover{border-color:#b9c9bb;color:#355b49}
+.button--coral{background:var(--coral);color:#fff}
+.button:disabled{cursor:not-allowed;opacity:.48}
+.text-link{align-items:center;background:transparent;border:0;color:#688477;cursor:pointer;display:inline-flex;font-size:10px;gap:6px;padding:5px 0;white-space:nowrap}
+.section-title{align-items:flex-end;display:flex;justify-content:space-between;margin:0 0 14px}
+.section-title h2{color:#30434a;font-size:18px;letter-spacing:-.4px;margin:4px 0 0}
+.section-title p{color:#8c999b;font-size:10px;margin:5px 0 0}
+.section-title--start{margin-bottom:14px}
+
+/* ---------- 欢迎横幅 ---------- */
+.welcome-strip{align-items:center;background:linear-gradient(112deg,#1d3943 0%,#274a4d 57%,#33594d 100%);border-radius:17px;color:#fff;display:flex;justify-content:space-between;margin-bottom:36px;min-height:182px;overflow:hidden;padding:27px 34px;position:relative}
+.welcome-strip>div:first-child{position:relative;z-index:2}
+.welcome-date{align-items:center;color:#b4c6bc;display:flex;font-size:8px;gap:8px;letter-spacing:1.6px}
+.welcome-date i{background:#c4de8f;border-radius:3px;height:5px;width:5px}
+.welcome-strip h1{color:#f5f7f0;font-size:25px;letter-spacing:-.5px;margin:13px 0 5px}
+.welcome-strip h1 span{color:#d6eb9d;font-size:18px;margin-left:4px}
+.welcome-strip p{color:#b1c2bb;font-size:11px;margin:0}
+.welcome-metric{border-left:1px solid rgb(255 255 255 / 15%);margin-left:auto;padding:4px 0 4px 27px;position:relative;z-index:2}
+.welcome-metric>span,.welcome-metric>div{color:#adc0ba;font-size:9px}
+.welcome-metric>strong{color:#f1f3eb;display:block;font-size:28px;font-weight:600;letter-spacing:-.7px;margin:4px 0}
+.welcome-metric>strong small{font-size:11px;font-weight:400;letter-spacing:0}
+.metric-trend{align-items:center;color:#d3ec9a;display:inline-flex;font-size:9px;gap:2px;margin-right:3px}
+.welcome-orbit{height:205px;opacity:.54;position:absolute;right:14%;top:-17px;width:205px}
+.orbit-ring{border:1px solid rgb(211 230 193 / 28%);border-radius:50%;inset:14px;position:absolute}
+.orbit-ring--two{inset:33px;transform:rotate(38deg) scaleX(.58)}
+.orbit-center{align-items:center;background:rgb(218 237 200 / 15%);border:1px solid rgb(232 245 225 / 33%);border-radius:50%;color:#e5f0d7;display:flex;height:70px;justify-content:center;left:50%;position:absolute;top:50%;transform:translate(-50%,-50%);width:70px}
+.orbit-dot{background:#d7ed9f;border-radius:50%;height:6px;position:absolute;width:6px}
+.orbit-dot--a{left:38px;top:47px}.orbit-dot--b{right:28px;top:88px}.orbit-dot--c{bottom:31px;left:71px}
+
+/* ---------- 卡片 / 统计 ---------- */
+.dashboard-grid{display:grid;gap:14px;grid-template-columns:repeat(4,1fr)}
+.stat-card{background:#fff;border:1px solid #e8ece7;border-radius:11px;padding:16px 17px;transition:transform .15s ease,box-shadow .15s ease}
+.stat-card:hover{box-shadow:var(--shadow);transform:translateY(-2px)}
+.stat-card__top{align-items:center;display:flex;justify-content:space-between}
+.stat-card__icon{align-items:center;border-radius:8px;display:flex;height:31px;justify-content:center;width:31px}
+.stat-card__icon--green{background:#edf2e8;color:#5c7b5f}.stat-card__icon--blue{background:#edf3f4;color:#628392}.stat-card__icon--amber{background:#faf2e5;color:#af8858}.stat-card__icon--coral{background:#f9eeea;color:#b9725d}
+.stat-card__trend{color:#8c999b;font-size:8px}
+.stat-card strong{color:#30434a;display:block;font-size:26px;font-weight:600;letter-spacing:-.8px;margin:13px 0 3px}
+.stat-card small{color:#97a3a2;font-size:9px}
+.stat-card__foot{color:#8c999b;font-size:8px;margin-top:11px}
+
+/* ---------- 提示条 ---------- */
+.template-banner{align-items:center;background:linear-gradient(110deg,#e9efe4,#eff2e9);border:1px solid #e0e9dc;border-radius:11px;display:flex;gap:13px;margin-bottom:20px;padding:15px 17px}
+.template-banner__mark{align-items:center;background:#d9e4d3;border-radius:9px;color:#5c775e;display:flex;flex:none;height:39px;justify-content:center;width:39px}
+.template-banner>div:nth-child(2){display:grid;flex:1;gap:4px}
+.template-banner strong{color:#445b49;font-size:12px}
+.template-banner span{color:#839386;font-size:9px}
+.banner-count{color:#5b715c;font-size:18px;font-weight:600;white-space:nowrap}
+.banner-count small{color:#8c999b;font-size:9px;font-weight:400;margin-left:3px}
+.privacy-footnote{align-items:center;color:#97a3a2;display:flex;font-size:9px;gap:7px;margin-top:14px}
+.standard-disclaimer{align-items:flex-start;background:#f0f5ec;border:1px solid #e6ecdf;border-radius:8px;color:#718971;display:flex;font-size:9px;gap:8px;line-height:1.7;margin-top:16px;padding:11px 13px}
+.standard-disclaimer svg{flex:none;margin-top:1px}
+
+/* ---------- 工具栏 / 表格 ---------- */
+.order-toolbar,.template-toolbar{align-items:center;display:flex;justify-content:space-between;margin-bottom:13px}
+.filter-tabs{align-items:center;background:#fff;border:1px solid #e9edeb;border-radius:8px;display:inline-flex;gap:2px;padding:3px}
+.filter-tabs button{background:transparent;border:0;border-radius:6px;color:#82908f;cursor:pointer;font-size:9px;padding:7px 11px}
+.filter-tabs button.is-active{background:#e9efe6;color:#42644e;font-weight:600}
+.filter-tabs button span{color:#a1aaa5;font-size:8px;margin-left:4px}
+.toolbar-icon{align-items:center;background:transparent;border:0;color:#82908f;cursor:pointer;display:inline-flex;font-size:9px;gap:6px}
+.order-list-card{background:#fff;border:1px solid #e8edeb;border-radius:11px;overflow:hidden}
+.table-heading,.order-table-row{align-items:center;display:grid;gap:12px;grid-template-columns:2fr 1.2fr .8fr .9fr .8fr 1.5fr;padding:0 15px}
+.table-heading{background:#fafbf9;border-bottom:1px solid #eef0ed;color:#9aa5a3;font-size:9px;min-height:38px}
+.order-table-row{background:#fff;border:0;border-bottom:1px solid #f0f2f0;color:#657376;cursor:pointer;font-size:9px;min-height:64px;text-align:left;transition:background .12s ease;width:100%}
+.order-table-row:last-child{border-bottom:0}
+.order-table-row:hover{background:#fbfcfa}
+.cell-strong{color:#35474a;font-size:11px;font-weight:600}
+.cell-sub{color:#9aa5a3;font-size:8px;margin-top:3px}
+.cell-primary{display:flex;flex-direction:column;min-width:0}
+.cell-muted{color:#8c999a}
+.cell-actions{display:flex;gap:6px;justify-content:flex-end;flex-wrap:wrap}
+.mini-btn{background:#fff;border:1px solid #e4e9e5;border-radius:6px;color:#60736f;cursor:pointer;font-size:9px;padding:6px 9px;white-space:nowrap}
+.mini-btn:hover{border-color:#b9c9bb;color:#355b49}
+.mini-btn--coral{color:#b9725d;border-color:#edd3ca}
+.mini-btn--coral:hover{border-color:#c87861;color:#a35b46}
+.status-pill{align-items:center;border-radius:5px;display:inline-flex;flex:none;font-size:9px;gap:5px;padding:5px 7px;white-space:nowrap;width:max-content}
+.status-pill i{border-radius:50%;height:5px;width:5px}
+.status-pill--neutral{background:#f0f2f0;color:#7f8e8d}.status-pill--neutral i{background:#a8b2ae}
+.status-pill--blue{background:#edf3f4;color:#628392}.status-pill--blue i{background:#83a5ae}
+.status-pill--amber{background:#faf2e5;color:#af8858}.status-pill--amber i{background:#d5ae71}
+.status-pill--coral{background:#f9eeea;color:#b9725d}.status-pill--coral i{background:#ca8068}
+.status-pill--green{background:#edf4ed;color:#64866d}.status-pill--green i{background:#83a486}
+.empty-state{align-items:center;color:#a2acab;display:flex;flex-direction:column;gap:7px;padding:55px 15px;text-align:center}
+.empty-state>div{align-items:center;background:#f2f5f1;border-radius:50%;color:#96a79a;display:flex;height:42px;justify-content:center;margin-bottom:3px;width:42px}
+.empty-state strong{color:#657474;font-size:11px}
+.empty-state span{font-size:9px}
+
+/* ---------- 今日工作卡 ---------- */
+.today-card{background:#fff;border:1px solid #e8ece7;border-radius:11px;padding:17px 19px}
+.today-card__head{align-items:center;display:flex;justify-content:space-between}
+.today-card__head>div{display:grid;gap:4px}
+.today-card__head strong{color:#30434a;font-size:13px}
+.today-badge{align-items:center;background:#edf4ed;border-radius:20px;color:#64866d;display:inline-flex;font-size:9px;gap:5px;padding:5px 9px}
+.progress-stat{align-items:baseline;display:flex;justify-content:space-between;margin-top:20px}
+.progress-stat span{color:#839194;font-size:10px}
+.progress-stat strong{color:#30434a;font-size:25px;font-weight:600;letter-spacing:-.7px}
+.progress-stat strong small{color:#a0aaaa;font-size:10px;font-weight:400}
+.progress-track{background:#eef1ec;border-radius:20px;height:5px;margin-top:9px;overflow:hidden}
+.progress-track span{background:linear-gradient(90deg,var(--green),#6f9877);border-radius:20px;display:block;height:100%}
+.today-steps{display:grid;gap:8px;grid-template-columns:repeat(3,1fr);margin-top:19px}
+.today-step{align-items:center;background:#fafbf9;border:1px solid #f0f2ef;border-radius:8px;display:flex;flex-direction:column;gap:4px;padding:12px 6px;text-align:center}
+.today-step>span{align-items:center;background:#f0f2f0;border-radius:50%;color:#9aa5a3;display:flex;font-size:10px;height:23px;justify-content:center;width:23px}
+.today-step.is-done>span{background:#edf4ed;color:#64866d}
+.today-step.is-live>span{background:#e9efe6;color:#42644e}
+.today-step strong{color:#5b6d70;font-size:9px}
+.today-step small{color:#a0aaaa;font-size:8px}
+.today-action{align-items:center;background:transparent;border:0;color:#52775d;cursor:pointer;display:inline-flex;font-size:9px;gap:6px;margin-top:15px;padding:0}
+
+/* ---------- 弹层 / 登录 / 提示 ---------- */
+.modal-mask{position:fixed;inset:0;align-items:center;background:rgb(23 46 57 / 45%);display:none;justify-content:center;z-index:50}
+.modal-mask.show{display:flex}
+.modal{background:#fff;border-radius:13px;max-width:90vw;padding:24px;width:440px;box-shadow:0 30px 80px rgb(0 0 0 / 18%)}
+.modal h3{color:#243941;font-size:16px;margin-bottom:5px}
+.field{margin-top:14px}
+.field label{display:block;color:#8d999c;font-size:9px;margin-bottom:6px}
+.field input,.field select{border:1px solid #e4e9e5;border-radius:7px;font-size:11px;padding:10px 12px;width:100%}
+.modal-actions{display:flex;gap:9px;justify-content:flex-end;margin-top:22px}
+.login-wrap{align-items:center;background:linear-gradient(160deg,#172e39,#264c40);display:flex;justify-content:center;min-height:100vh}
+.login-box{background:#fff;border-radius:16px;box-shadow:0 30px 80px rgb(0 0 0 / 25%);max-width:90vw;padding:38px;width:400px}
+.login-logo{text-align:center;margin-bottom:30px}
+.login-logo .m{display:inline-flex;width:56px;height:56px;background:var(--lime);color:var(--brand900);border-radius:14px 4px 14px 4px;align-items:center;justify-content:center;font-size:28px;font-weight:800;transform:rotate(-8deg)}
+.login-logo h1{font-size:23px;margin-top:14px;color:#243941}
+.login-logo .eyebrow{display:block;margin-top:5px}
+.notice{background:rgba(189,136,81,.1);border-left:3px solid var(--amber);border-radius:6px;color:var(--amber);font-size:10px;line-height:1.7;margin-top:16px;padding:12px 14px}
+.toast{position:fixed;right:24px;top:24px;background:var(--brand900);border-radius:8px;color:#fff;font-size:11px;padding:12px 17px;z-index:100;display:none}
+.toast.show{display:block}
+.demo-badge{background:rgba(189,136,81,.14);border-radius:20px;color:var(--amber);font-size:9px;font-weight:600;padding:4px 9px}
+.menu-toggle{background:transparent;border:0;color:var(--ink);cursor:pointer;display:none}
+@media(max-width:1000px){
+  .dashboard-grid{grid-template-columns:repeat(2,1fr)}
+  .table-heading,.order-table-row{grid-template-columns:1.6fr 1fr .8fr .8fr 1fr}
+  .table-heading>span:nth-child(3),.order-table-row>span:nth-child(3){display:none}
+}
+@media(max-width:760px){
+  .sidebar{transform:translateX(-100%);transition:transform .2s ease}
+  .sidebar.sidebar--open{transform:translateX(0)}
+  .main-area{margin-left:0;padding:0 16px}
+  .menu-toggle{display:inline-flex}
+  .page-heading{align-items:flex-start;flex-direction:column;gap:14px}
+  .dashboard-grid{grid-template-columns:1fr 1fr}
+  .welcome-strip{padding:22px}
+  .welcome-orbit{display:none}
+  .table-heading,.order-table-row{grid-template-columns:1.5fr .9fr .9fr}
+  .table-heading>span:nth-child(2),.order-table-row>span:nth-child(2),
+  .table-heading>span:nth-child(4),.order-table-row>span:nth-child(4),
+  .table-heading>span:nth-child(5),.order-table-row>span:nth-child(5){display:none}
+  .table-heading>span:nth-child(6),.order-table-row>span:nth-child(6){display:flex}
+}
+</style>
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+  <div class="login-box">
+    <div class="login-logo"><div class="m">鉴</div><h1>鉴见 · 平台运营后台</h1><span class="eyebrow">PLATFORM OPERATION CONSOLE</span></div>
+    <button class="button button--primary" style="width:100%;min-height:44px" id="loginBtn">使用 WorkBuddy 登录</button>
+    <div class="notice">本后台仅面向平台超级管理员。机构检测师与机构管理员请前往「鉴见车辆检测」小程序。首次使用需由平台方开通超级管理员权限。</div>
+    <div id="loginMsg" style="color:var(--coral);font-size:11px;margin-top:12px"></div>
+  </div>
+</div>
+
+<div id="appView" class="app-shell hidden">
+  <aside class="sidebar" id="sidebar">
+    <button class="brand-lockup" id="brandBtn" aria-label="返回工作概览">
+      <span class="brand-mark"><i class="brand-mark__dot"></i><i class="brand-mark__line"></i></span>
+      <span><strong>鉴见</strong><small>INSPECTION STUDIO</small></span>
+    </button>
+    <div class="platform-switch">
+      <div class="platform-avatar">平</div>
+      <div><strong>平台运营中心</strong><small>超级管理员工作空间</small></div>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+    <div class="sidebar-label">平台管理</div>
+    <nav class="side-nav" id="nav">
+      <button class="side-nav__item is-active" data-page="overview"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg><span>工作概览</span></button>
+      <button class="side-nav__item" data-page="tenants"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-5h6v5M9 10h.01M15 10h.01"/></svg><span>机构列表</span><b id="tenantBadge">3</b></button>
+      <button class="side-nav__item" data-page="plans"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m7.5 4.3 9 5.2M3.3 10.7 12 16l8.7-5.3M12 16v5M12 2 3 7v10l9 5 9-5V7z"/></svg><span>套餐与配额</span></button>
+      <button class="side-nav__item" data-page="accounts"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>平台账号</span></button>
+      <button class="side-nav__item" data-page="audit"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h6"/></svg><span>全局审计</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="upgrade-card">
+        <div class="upgrade-card__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9z"/></svg></div>
+        <strong>让专业，变得简单</strong>
+        <span>平台运营控制台</span>
+        <button id="helpBtn">帮助文档 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M8 7h9v9"/></svg></button>
+      </div>
+      <button class="user-switch" id="userBtn">
+        <div class="avatar" id="sideAvatar">管</div><span><strong id="sideName">平台管理员</strong><small id="sideRole">平台超级管理员 · 平台</small></span>
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg>
+      </button>
+    </div>
+  </aside>
+
+  <main class="main-area">
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle" aria-label="切换菜单"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+      <div class="breadcrumb"><span>鉴见平台</span><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg><strong id="crumb">工作概览</strong></div>
+      <div class="topbar-right"><span class="connection-dot"></span><small>服务正常</small><button class="topbar-help" id="topHelp"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 2.5-3 4M12 17h.01"/></svg><span>帮助</span></button><button class="avatar avatar--small" id="topAvatar">管</button></div>
+    </header>
+    <div class="page-content" id="content"></div>
+    <footer class="app-footer"><span>© 2026 鉴见 · INSPECTION STUDIO</span><span>平台运营后台 · 敏感检测内容默认不展示</span></footer>
+  </main>
+</div>
+
+<div class="modal-mask" id="modalMask"><div class="modal" id="modalBody"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const PUB = {
+  endpoint: 'https://mp-api.app.workbuddy.host',
+  oauthRelayBaseUrl: 'https://www.workbuddy.cn/v2/as/genie-baas/oauth',
+  publishableKey: 'wbpk_lP2SAs1GOInZrKBVA68bB6_dvVXwlQc786ZuFCsA880goSt7ys4FqCf'
+};
+const cloud = WorkBuddyCloud.createWorkBuddyCloud(PUB);
+let session = null;
+</script>
+<script src="app.js"></script>
+</body>
+</html>

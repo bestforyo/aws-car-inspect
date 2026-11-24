@@ -1,0 +1,29 @@
+<view class="page">
+  <view class="head">
+    <view class="eyebrow">ORDERS</view>
+    <view class="h1">检测订单</view>
+    <view class="desc">查看全部订单，继续检测或查看进度</view>
+  </view>
+  <scroll-view class="filters" scroll-x>
+    <view wx:for="{{filters}}" wx:key="*this" class="filter {{filter===item?'active':''}}" bindtap="setFilter" data-f="{{item}}">{{item}}</view>
+  </scroll-view>
+  <view wx:if="{{loading}}" class="empty card"><view class="desc">加载中…</view></view>
+  <view wx:elif="{{list.length===0}}" class="empty card">
+    <view class="empty-icon">📋</view><view class="desc">暂无订单</view>
+  </view>
+  <view wx:for="{{list}}" wx:key="id" class="order card" bindtap="open" data-id="{{item.id}}" data-status="{{item.status}}">
+    <view class="row-between">
+      <view class="order-no">{{item.order_no}}</view>
+      <view class="tag {{item.statusCls}}">{{item.statusLabel}}</view>
+    </view>
+    <view class="order-title">{{item.package_name}}</view>
+    <view class="order-info">
+      <text>{{item.vehicleLabel}}</text><text class="dot">·</text>
+      <text>{{item.plate || '待录入车牌'}}</text>
+    </view>
+    <view class="order-foot">
+      <text>创建于 {{item.timeText}}</text>
+      <text class="act">{{item.status==='REVIEW_PENDING'||item.status==='PUBLISHED'?'查看详情':'继续检测 →'}}</text>
+    </view>
+  </view>
+</view>

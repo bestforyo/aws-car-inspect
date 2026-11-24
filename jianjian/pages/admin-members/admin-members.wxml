@@ -1,0 +1,26 @@
+<view class="page">
+  <view wx:if="{{!isAdmin}}" class="card"><view class="h3">无权限</view></view>
+  <block wx:else>
+    <view class="head"><view class="eyebrow">MEMBERS</view><view class="h1">成员与角色</view><view class="desc">机构业务角色仅检测师与机构管理员两种</view></view>
+    <view wx:for="{{members}}" wx:key="id" class="card member">
+      <view class="row-between">
+        <view class="m-name">{{item.display_name || '未命名成员'}}</view>
+        <view class="tag {{item.role==='org_admin'?'tag-success':'tag-muted'}}">{{item.role==='org_admin'?'机构管理员':'检测师'}}</view>
+      </view>
+      <view class="m-uid">{{item.uid}}</view>
+      <view class="row-between m-actions">
+        <view class="desc">状态：{{item.status==='active'?'正常':'已停用'}}</view>
+        <view class="role-switch">
+          <text bindtap="setRole" data-id="{{item.id}}" data-r="inspector">设为检测师</text>
+          <text bindtap="setRole" data-id="{{item.id}}" data-r="org_admin">设为管理员</text>
+        </view>
+      </view>
+    </view>
+    <view wx:if="{{members.length===0}}" class="empty card"><view class="desc">暂无成员</view></view>
+    <view class="card note-card">
+      <view class="eyebrow">INVITE</view>
+      <view class="h3">邀请检测师</view>
+      <view class="desc">将机构编码「{{orgCode}}」分享给检测师，其在登录页选择「加入机构」输入编码即可成为检测师。审核权限仅机构管理员拥有。</view>
+    </view>
+  </block>
+</view>

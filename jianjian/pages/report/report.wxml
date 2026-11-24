@@ -1,0 +1,72 @@
+<view class="page-nopad report">
+  <!-- 封面 -->
+  <view class="cover">
+    <view class="cover-brand">鉴见 <text>INSPECTION STUDIO</text></view>
+    <view class="cover-org">{{snapshot.orgName || order.orgName || '检测机构'}}</view>
+    <view class="cover-title">车辆检测报告</view>
+    <view class="cover-no">{{report.report_no || '—'}}</view>
+    <view class="cover-seal">检 测 专 用</view>
+    <view class="cover-foot">
+      <view>车辆：{{snapshot.plate || order.plate || '—'}}</view>
+      <view>签发：{{publishTime}}</view>
+    </view>
+  </view>
+
+  <view class="report-body">
+    <!-- 结论 -->
+    <view class="card summary">
+      <view class="eyebrow">CONCLUSION</view>
+      <view class="h2">检测结论</view>
+      <view class="summary-row"><text>检测日期</text><text>{{publishTime}}</text></view>
+      <view class="summary-row"><text>检测套餐</text><text>{{order.package_name || '—'}}</text></view>
+      <view class="summary-row"><text>标准依据</text><text>{{snapshot.standard || '示范清单（待专业审核）'}}</text></view>
+      <view wx:if="{{alerts.length>0}}" class="summary-alerts">
+        <view wx:for="{{alerts}}" wx:key="type" class="sa {{item.type}}">{{item.title}}：{{item.text}}</view>
+      </view>
+      <view wx:else class="summary-ok">未触发事故车 / 泡水车 / 火烧车提示</view>
+    </view>
+
+    <!-- 车辆信息 -->
+    <view class="card">
+      <view class="eyebrow">VEHICLE</view><view class="h2">车辆信息</view>
+      <view class="summary-row"><text>车辆种类</text><text>{{vehicleLabel}}</text></view>
+      <view class="summary-row"><text>品牌车型</text><text>{{order.brand_model || '—'}}</text></view>
+      <view class="summary-row"><text>车牌</text><text>{{order.plate || '—'}}</text></view>
+    </view>
+
+    <!-- 检测结果 -->
+    <view class="card" wx:for="{{sections}}" wx:key="name">
+      <view class="eyebrow">RESULT</view><view class="h2">{{item.name}}</view>
+      <view wx:for="{{item.items}}" wx:for-item="it" wx:key="n" class="ri">
+        <view class="ri-top"><text>{{it.n}}</text><text class="rv {{it.color}}">{{it.answer.result}}</text></view>
+        <view wx:if="{{it.answer.threshold}}" class="ri-sub">尺寸判定：{{it.answer.threshold}}</view>
+        <view wx:if="{{it.answer.note}}" class="ri-sub">说明：{{it.answer.note}}</view>
+      </view>
+    </view>
+
+    <!-- 照片证据 -->
+    <view class="card" wx:if="{{photoItems.length>0}}">
+      <view class="eyebrow">EVIDENCE</view><view class="h2">现场影像</view>
+      <view wx:for="{{photoItems}}" wx:for-item="p" wx:key="n" class="photo-group">
+        <view class="pg-name">{{p.n}} · {{p.answer.result}}</view>
+        <view class="pg-photos">
+          <image wx:for="{{p.answer.photos}}" wx:for-item="pic" wx:key="*this" src="{{pic}}" mode="aspectFill" bindtap="preview" data-url="{{pic}}" />
+        </view>
+      </view>
+    </view>
+
+    <view class="disclaimer card">
+      <view class="eyebrow">DISCLAIMER</view>
+      <view class="h3">补充说明与免责声明</view>
+      <view class="desc">本报告基于现场检测时点车辆状况出具，检测项目为示范清单，标准依据与专业结论须经机构审核确认。报告仅对本次受检车辆负责，不含估价、交易撮合或价值承诺。完整标准原文未作为公开附件。</view>
+    </view>
+
+    <view class="signoff">
+      <view>签发机构：{{snapshot.orgName || '—'}}</view>
+      <view>报告编号：{{report.report_no || '—'}}</view>
+      <view>报告版本：v1.0 · {{publishTime}}</view>
+    </view>
+
+    <button wx:if="{{canShare}}" class="btn btn-primary btn-block share-btn" bindtap="goShareManage">分享管理</button>
+  </view>
+</view>
