@@ -8,71 +8,149 @@
 <script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
 <style>
 :root{
-  --forest:#174D45; --forest-deep:#123B35; --lime:#C7E86A; --ink:#1C2B2A;
-  --muted:#6B7A78; --line:#E2E8E5; --bg:#F4F6F4; --card:#FFFFFF;
-  --red:#C0392B; --amber:#B8860B; --green:#2E7D5B; --blue:#2C6E9B;
+  --forest:#174D45; --forest-deep:#123B35; --forest-soft:#2C6B5E; --lime:#C7E86A;
+  --ink:#1C2B2A; --muted:#6B7A78; --faint:#94A09E; --line:#D5DED9; --line-soft:#EAF0EC; --bg:#EDF1EE;
+  --card:#FFFFFF; --good:#2E7D5B; --good-bg:#EAF5EF; --warn:#B07A12; --warn-bg:#FBF2DF;
+  --bad:#B8402F; --bad-bg:#FBECE8; --info:#2C6E9B; --info-bg:#E8F1F8;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
-#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
-.cover{background:linear-gradient(155deg,var(--forest-deep),var(--forest));color:#fff;padding:30px 22px 26px;position:relative;overflow:hidden}
-.cover::after{content:"";position:absolute;right:-40px;top:-30px;width:170px;height:170px;border:1px solid rgba(199,232,106,.18);border-radius:50%}
-.cover::before{content:"";position:absolute;right:10px;top:30px;width:110px;height:110px;border:1px solid rgba(199,232,106,.12);border-radius:50%}
-.brand{font-size:13px;letter-spacing:2px;color:var(--lime);font-weight:600}
-.brand small{display:block;font-size:9px;letter-spacing:1.4px;color:rgba(255,255,255,.55);margin-top:3px}
-.cover h1{font-size:24px;font-weight:600;margin:26px 0 6px}
-.cover .no{font-size:12px;color:rgba(255,255,255,.6);font-family:ui-monospace,monospace}
-.cover .seal{display:inline-block;margin-top:18px;border:1px solid rgba(199,232,106,.5);color:var(--lime);font-size:11px;letter-spacing:3px;padding:4px 10px;border-radius:2px}
-.body{padding:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
-.eyebrow{font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase}
-.h2{font-size:16px;font-weight:600;margin:4px 0 12px}
-.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #F0F3F1;font-size:13px}
-.row:last-child{border-bottom:none}
-.row .k{color:var(--muted);flex-shrink:0}
-.row .v{flex:1;min-width:0;text-align:right;word-break:break-all;overflow-wrap:anywhere}
-.alert,.ok{overflow-wrap:anywhere}
-.ri-top span:first-child{min-width:0;overflow-wrap:anywhere}
-.alert{border-radius:8px;padding:11px 13px;margin-bottom:9px;font-size:13px;border-left:3px solid}
-.alert .t{font-weight:600;margin-bottom:2px}
-.alert.accident{background:#FCEEEC;border-color:var(--red);color:#8E2B20}
-.alert.water{background:#E9F1F8;border-color:var(--blue);color:#1F557B}
-.alert.fire{background:#FBF0E2;border-color:var(--amber);color:#8A5E08}
-.ok{background:#EAF5EF;border:1px solid #CFE7D9;color:var(--green);border-radius:8px;padding:12px;font-size:13px}
-.sec-title{font-size:13px;font-weight:600;color:var(--forest);margin:2px 0 8px}
-.ri{padding:9px 0;border-bottom:1px solid #F0F3F1}
-.ri:last-child{border-bottom:none}
-.ri-top{display:flex;justify-content:space-between;gap:10px;font-size:13px}
-.rv{font-weight:600;flex-shrink:0}
-.rv.good{color:var(--green)} .rv.warn{color:var(--amber)} .rv.bad{color:var(--red)} .rv.neutral{color:var(--muted)}
-.ri-sub{font-size:11px;color:var(--muted);margin-top:3px}
-.photo-group{margin-bottom:14px}
-.pg-name{font-size:12px;color:var(--muted);margin-bottom:6px}
-.photos{display:flex;gap:6px;flex-wrap:wrap}
-.photos img{width:78px;height:78px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
-.photo-empty,.photo-locked{font-size:12px;color:var(--muted);background:#F7F9F8;padding:10px;border-radius:6px}
-.disclaimer{background:#F7F9F8;font-size:12px;color:var(--muted);line-height:1.7}
-.signoff{text-align:center;color:var(--muted);font-size:11px;padding:10px 0 24px;line-height:1.9}
-.state{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center}
+.phone{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;overflow:hidden;padding-bottom:env(safe-area-inset-bottom)}
+.bar{height:44px;background:var(--forest-deep);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:13px}
+.bar .brand{font-weight:600;letter-spacing:1px}
+.bar .brand small{font-size:8px;letter-spacing:1.2px;opacity:.6;margin-left:6px;font-weight:400}
+.bar .tag{font-size:10px;border:1px solid rgba(199,232,106,.5);color:var(--lime);padding:2px 8px;border-radius:10px}
+
+.hero{background:linear-gradient(160deg,var(--forest-deep),var(--forest));color:#fff;padding:20px 18px 40px;position:relative}
+.hero::after{content:"";position:absolute;right:-50px;top:-60px;width:220px;height:220px;border:1px solid rgba(199,232,106,.12);border-radius:50%}
+.hero::before{content:"";position:absolute;right:20px;top:20px;width:130px;height:130px;border:1px solid rgba(199,232,106,.09);border-radius:50%}
+.hero-veh{display:flex;gap:14px;align-items:center;position:relative;z-index:2}
+.hero-info{flex:1;min-width:0}
+.hero-name{font-size:18px;font-weight:600;line-height:1.3}
+.hero-vin{font-family:ui-monospace,monospace;font-size:11px;color:rgba(255,255,255,.62);letter-spacing:.5px;margin-top:5px}
+.hero-concl{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:10px;color:rgba(255,255,255,.65)}
+.hero-concl b{font-size:11px;color:var(--forest-deep);background:var(--lime);border-radius:4px;padding:2px 8px;font-weight:600}
+.hero-concl b.attention{color:#fff;background:var(--bad)}
+.hero-sub{font-size:9px;color:rgba(255,255,255,.45);margin-top:6px}
+.hero-photo{width:118px;height:82px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid rgba(199,232,106,.35);position:relative}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.hp-tag{position:absolute;left:4px;bottom:4px;background:rgba(18,59,53,.78);color:var(--lime);font-size:8px;padding:1px 5px;border-radius:3px}
+
+.wrap{padding:0;margin-top:-28px;position:relative;z-index:2}
+.card{background:var(--card);border:1px solid var(--line);border-radius:0;margin-bottom:10px;overflow:hidden}
+
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft)}
+.verdict{background:var(--card);padding:14px 6px;text-align:center}
+.verdict .ic{width:34px;height:34px;border-radius:50%;background:var(--good-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 7px}
+.verdict .ic.bad{background:var(--bad-bg)}
+.verdict .ic svg{width:19px;height:19px;stroke:var(--good);fill:none;stroke-width:1.7}
+.verdict .ic.bad svg{stroke:var(--bad)}
+.verdict .lb{font-size:12px;font-weight:600;color:var(--good)}
+.verdict .lb.bad{color:var(--bad)}
+.verdict .sub{font-size:9px;color:var(--faint);margin-top:2px}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft)}
+.metric{background:var(--card);padding:16px 4px 14px;text-align:center}
+.ring{width:52px;height:52px;margin:0 auto 7px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.ring::after{content:"";position:absolute;width:40px;height:40px;border-radius:50%;background:#fff}
+.ring span{position:relative;z-index:2;font-size:13px;font-weight:600}
+.metric .ml{font-size:11px;color:var(--muted);margin-top:2px}
+
+.sec-head{padding:13px 16px 11px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between}
+.sec-head .t{font-size:15px;font-weight:600}
+.sec-head .t .en{font-size:9px;letter-spacing:1.5px;color:var(--faint);font-weight:400;margin-left:7px}
+.chk{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
+.chk .sw{width:30px;height:17px;border-radius:10px;background:#D6DED9;position:relative;transition:.2s}
+.chk .sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:.2s}
+.chk.on .sw{background:var(--forest)}
+.chk.on .sw::after{left:15px}
+
+.tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--line-soft);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;font-size:12px;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent;flex-shrink:0;cursor:pointer}
+.tab.on{color:var(--forest);font-weight:600;border-color:var(--forest)}
+.tab .num{font-size:9px;color:var(--faint);margin-left:3px}
+
+.concl{margin:14px;padding:14px;background:#F7FAF8;border-radius:9px}
+.concl .ch{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.concl .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+.concl .body{font-size:12px;color:#465653;line-height:1.85}
+.concl .body b{color:var(--forest)}
+.concl .more{font-size:10px;color:var(--info);margin-top:8px;display:inline-block}
+
+.illus{margin:0 14px 14px;height:184px;background:#0C211F;border-radius:9px;position:relative;overflow:hidden}
+.illus img{width:100%;height:100%;object-fit:cover;display:block}
+.illus .cap{position:absolute;bottom:7px;right:10px;font-size:9px;color:rgba(199,232,106,.7);background:rgba(12,33,31,.6);padding:2px 6px;border-radius:3px}
+
+.legends{display:flex;gap:14px;padding:0 16px 11px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.lg i{width:9px;height:9px;border-radius:50%;display:block}
+.lg.a i{background:var(--bad)} .lg.b i{background:var(--warn)} .lg.c i{background:var(--good)} .lg.d i{background:#C8D0CC}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line-soft);border-bottom:0}
+.item{background:var(--card);min-width:0;border-bottom:1px solid var(--line-soft)}
+.cell{display:flex;align-items:center;gap:7px;padding:10px 11px;cursor:pointer;min-height:46px}
+.cell:active{background:#F7FAF8}
+.cell .pico{width:16px;height:16px;flex-shrink:0;opacity:.55}
+.cell .info{flex:1;min-width:0}
+.cell .nm{font-size:11px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell .dsc{font-size:9px;color:var(--faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.right-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.cell .st{font-size:9px;padding:2px 6px;border-radius:9px;white-space:nowrap;flex-shrink:0;font-weight:500;display:flex;align-items:center;gap:3px}
+.cell .st::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.st.a{background:var(--bad-bg);color:var(--bad)} .st.b{background:var(--warn-bg);color:var(--warn)} .st.c{background:var(--good-bg);color:var(--good)} .st.d{background:#EEF1EF;color:#8A9591}
+
+.detail{background:#F7FAF8;padding:11px 11px;font-size:11px;display:none}
+.detail.open{display:block}
+.detail .row{display:flex;justify-content:space-between;padding:4px 0;color:var(--muted)}
+.detail .row b{color:var(--ink);font-weight:500}
+.detail .ph{margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.detail .ph .bigph{width:132px;height:88px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:#EEF2EF;cursor:zoom-in}
+.detail .ph .bigph img{width:100%;height:100%;object-fit:cover;display:block}
+.detail .ph .bigph svg{width:100%;height:100%;display:block}
+.detail .ph .phcap{font-size:10px;color:var(--faint);line-height:1.7;max-width:150px}
+.detail .ph .phlock{font-size:10px;color:var(--faint);line-height:1.7;max-width:160px;background:#EEF1EF;padding:8px;border-radius:6px}
+
+.integrity{padding:16px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12px}
+.kv:last-child{border:none}
+.kv .k{color:var(--muted)}
+.kv .v{font-family:ui-monospace,monospace;font-size:11px;text-align:right;word-break:break-all;max-width:62%}
+.timeline{margin-top:14px;padding-left:16px;border-left:1px solid var(--line-soft)}
+.tl{position:relative;padding:0 0 13px 14px;font-size:11px;color:var(--muted)}
+.tl:last-child{padding-bottom:0}
+.tl::before{content:"";position:absolute;left:-20px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--forest);border:2px solid #fff}
+.tl b{color:var(--ink);font-weight:500;display:block}
+.tl span{font-size:10px;color:var(--faint)}
+
+.disclaimer{padding:16px;background:#F7FAF8;font-size:11px;color:var(--muted);line-height:1.8}
+.disclaimer .h{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.sign{text-align:center;padding:18px 0 28px;font-size:10px;color:var(--faint);line-height:1.9}
+.sign .seal{display:inline-block;border:1px solid var(--forest);color:var(--forest);border-radius:4px;padding:4px 12px;letter-spacing:3px;font-size:11px;margin-bottom:8px}
+
+.photo-viewer{position:fixed;inset:0;background:rgba(12,27,25,.9);z-index:99;display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+.photo-viewer .pv-inner{width:100%;max-width:440px}
+.photo-viewer .pv-title{color:#fff;font-size:13px;margin-bottom:12px;text-align:center}
+.photo-viewer img,.photo-viewer svg{width:100%;border-radius:8px;display:block;background:#EEF2EF}
+.photo-viewer .pv-meta{color:var(--lime);font-size:12px;margin-top:12px;text-align:center}
+.photo-viewer .pv-close{color:rgba(255,255,255,.5);font-size:11px;margin-top:22px;text-align:center}
+
+.state{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center;background:var(--bg)}
 .state-box{max-width:340px}
-.state-icon{width:58px;height:58px;border-radius:50%;background:#FCEEEC;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}
-.state-icon.load{background:#EAF5EF;color:var(--green)}
+.state-icon{width:58px;height:58px;border-radius:50%;background:var(--bad-bg);color:var(--bad);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}
 .state h3{font-size:17px;margin-bottom:8px}
-.state p{color:var(--muted);font-size:13px;margin-bottom:18px}
+.state p{color:var(--muted);font-size:13px;margin-bottom:14px;line-height:1.7}
 .spinner{width:26px;height:26px;border:3px solid #CFE7D9;border-top-color:var(--forest);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 18px}
 @keyframes sp{to{transform:rotate(360deg)}}
-.foot-logo{text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;padding:0 0 20px}
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="state">
-    <div class="spinner"></div>
-    <div class="state-box"><h3>正在加载报告</h3><p>校验分享链接有效性…</p></div>
-  </div>
+<div class="phone" id="app">
+  <div class="state"><div class="state-box"><div class="spinner"></div><h3>正在加载报告</h3><p>校验分享链接有效性…</p></div></div>
 </div>
 <script>
 (function () {
+  'use strict';
   var PUB = {
     endpoint: 'https://mp-api.app.workbuddy.host',
     publishableKey: 'wbpk_lP2SAs1GOInZrKBVA68bB6_dvVXwlQc786ZuFCsA880goSt7ys4FqCf'
@@ -80,6 +158,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   var cloud = window.WorkBuddyCloud.createWorkBuddyCloud(PUB);
   var db = cloud.database;
   var app = document.getElementById('app');
+  var HERO_IMG = 'assets/A_photorealistic_modern_luxury_2026-11-24T12-19-43.png';
+  var MODULES = [], current = 0, flawOnly = false;
 
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -88,95 +168,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
   }
   function state(icon, title, desc, load) {
     app.innerHTML = '<div class="state"><div class="state-box">' +
-      (load ? '<div class="spinner"></div>' : '<div class="state-icon ' + (load ? 'load' : '') + '">' + icon + '</div>') +
+      (load ? '<div class="spinner"></div>' : '<div class="state-icon">' + esc(icon) + '</div>') +
       '<h3>' + esc(title) + '</h3><p>' + esc(desc) + '</p></div></div>';
   }
-  function colorCls(c) { return c === 'good' || c === 'warn' || c === 'bad' ? c : 'neutral'; }
-  function maskPlate(p, enabled) {
-    if (!enabled || !p || p.length < 4) return p;
-    return p.substring(0, 2) + '***' + p.substring(p.length - 2);
-  }
-
   function getToken() {
     var m = location.search.match(/[?&]t=([^&#]+)/);
     if (m) return decodeURIComponent(m[1]);
     var path = location.pathname.match(/\/r\/([^/]+)/);
     return path ? decodeURIComponent(path[1]) : '';
   }
-
-  function render(d) {
-    var includePhotos = d.include_photos !== false;
-    var alertsHtml = '';
-    var alerts = d.alerts || [];
-    if (alerts.length) {
-      alertsHtml = alerts.map(function (a) {
-        var type = a.type || '';
-        var cls = type.indexOf('accident') >= 0 ? 'accident' : type.indexOf('water') >= 0 ? 'water' : type.indexOf('fire') >= 0 ? 'fire' : 'accident';
-        return '<div class="alert ' + cls + '"><div class="t">' + esc(a.title || '重要提示') + '</div>' + esc(a.text || '') + '</div>';
-      }).join('');
-    } else {
-      alertsHtml = '<div class="ok">未触发事故车 / 泡水车 / 火烧车提示</div>';
-    }
-
-    var sectionsHtml = (d.sections || []).map(function (s) {
-      var rows = (s.items || []).map(function (it) {
-        return '<div class="ri"><div class="ri-top"><span>' + esc(it.n) + '</span>' +
-          '<span class="rv ' + colorCls(it.color) + '">' + esc(it.result) + '</span></div>' +
-          (it.threshold ? '<div class="ri-sub">尺寸判定：' + esc(it.threshold) + '</div>' : '') +
-          (it.note ? '<div class="ri-sub">说明：' + esc(it.note) + '</div>' : '') + '</div>';
-      }).join('');
-      return '<div class="card"><div class="eyebrow">RESULT</div><div class="sec-title">' + esc(s.name) + '</div>' + rows + '</div>';
-    }).join('');
-
-    var photoHtml = '';
-    if (includePhotos) {
-      var groups = d.photos || [];
-      if (groups.length) {
-        var inner = groups.map(function (g) {
-          var imgs = (g.urls || []).map(function (u) {
-            if (/^(cloud:\/\/|\/|\w+\/)/.test(u) && !/^https?:/.test(u)) {
-              return '<div class="photo-locked">现场影像存于云端，需机构授权后查看</div>';
-            }
-            return '<img src="' + esc(u) + '" alt="现场照片" onclick="window.open(this.src)" />';
-          }).join('');
-          return '<div class="photo-group"><div class="pg-name">' + esc(g.n) + ' · ' + esc(g.result) + '</div><div class="photos">' + imgs + '</div></div>';
-        }).join('');
-        photoHtml = '<div class="card"><div class="eyebrow">EVIDENCE</div><div class="h2">现场影像</div>' + inner + '</div>';
-      } else {
-        photoHtml = '<div class="card"><div class="eyebrow">EVIDENCE</div><div class="h2">现场影像</div><div class="photo-empty">本次检测未附带可公开展示的现场影像。</div></div>';
-      }
-    }
-
-    app.innerHTML =
-      '<div class="cover">' +
-        '<div class="brand">鉴见<small>INSPECTION STUDIO</small></div>' +
-        '<h1>车辆检测报告</h1>' +
-        '<div class="no">' + esc(d.report_no) + '</div>' +
-        '<div class="seal">检 测 专 用</div>' +
-      '</div>' +
-      '<div class="body">' +
-        '<div class="card"><div class="eyebrow">CONCLUSION</div><div class="h2">检测结论</div>' +
-          '<div class="row"><span class="k">签发机构</span><span class="v">' + esc(d.org_name) + '</span></div>' +
-          '<div class="row"><span class="k">签发时间</span><span class="v">' + esc(fmtTime(d.published_at)) + '</span></div>' +
-          '<div class="row"><span class="k">检测套餐</span><span class="v">' + esc(d.package_name) + '</span></div>' +
-          '<div class="row"><span class="k">标准依据</span><span class="v">' + esc(d.standard || '机构审核发布的适用模板') + '</span></div>' +
-          '<div style="margin-top:12px">' + alertsHtml + '</div>' +
-        '</div>' +
-        '<div class="card"><div class="eyebrow">VEHICLE</div><div class="h2">车辆信息</div>' +
-          '<div class="row"><span class="k">车辆类型</span><span class="v">' + esc(d.vehicle_kind === 'MOTORCYCLE' ? '摩托车' : '乘用车') + '</span></div>' +
-          '<div class="row"><span class="k">车牌</span><span class="v">' + esc(d.plate || '—') + '</span></div>' +
-        '</div>' +
-        sectionsHtml + photoHtml +
-        '<div class="card disclaimer"><div class="eyebrow">DISCLAIMER</div><div class="h2" style="font-size:14px;margin-top:4px">说明与免责</div>' +
-          esc(d.disclaimer) +
-          '<div style="margin-top:8px">本报告为只读版本，内容在审核发布时已锁定。完整标准原文不作为公开附件。报告不含估价、交易撮合或价值承诺。</div>' +
-        '</div>' +
-        '<div class="signoff"><div>签发机构：' + esc(d.org_name) + '</div>' +
-          '<div>报告编号：' + esc(d.report_no) + '</div>' +
-          '<div>鉴见 · INSPECTION STUDIO</div></div>' +
-      '</div>';
-  }
-
   function fmtTime(v) {
     if (!v) return '—';
     var d = new Date(v);
@@ -184,10 +184,291 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
     return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
       ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   }
+  function colorState(c) { return c === 'bad' ? 'a' : c === 'warn' ? 'b' : c === 'good' ? 'c' : 'd'; }
+  function maskPlate(p) {
+    if (!p || p.length < 4) return p || '';
+    return p.substring(0, 2) + '***' + p.substring(p.length - 2);
+  }
+
+  var ICONS = {
+    shield: '<svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"/><path d="M8.5 12l2.5 2.5 5-5"/></svg>',
+    wave: '<svg viewBox="0 0 24 24"><path d="M3 15c3-2 5 2 9 0s6-2 9 0"/><path d="M5 10l2-5 3 4 3-6 3 7 3-4 2 4"/></svg>',
+    fire: '<svg viewBox="0 0 24 24"><path d="M12 2c2 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 4-7 0 3 2 4 2 4s0-4 0-8z"/></svg>'
+  };
+
+  // 演示数据（?demo=1）：与静态设计原型一致，用于展示完整设计效果
+  var DEMO_MODULES = [
+    { key:'accident', name:'事故检测', conclTitle:'事故结论：非事故车', total:59, flaw:4,
+      text:'经<b>鉴见检测</b>，该车前后纵梁、上下边梁、ABCD柱、减震器座等结构件，以及防火墙、水箱框架、翼子板骨架、后围板等加强件，共计 <b>59 项</b>事故检测项，未发现有符合事故车标准的切割、焊接、更换、变形、钣金修复痕迹。综合判定车辆为非事故车。',
+      items:[
+        ['左侧下边梁','b','中度瑕疵','结构示意标注 · 建议实车复核','小于30cm×30cm'],
+        ['右前大灯框架','c','无事故痕迹','—',''],['左侧上边梁','c','无事故痕迹','—',''],
+        ['左前翼子板','b','轻微瑕疵','轻微钣金修复','小于30cm×30cm'],
+        ['仪表台骨架','c','无事故痕迹','—',''],
+        ['左后翼子板内侧(骨架)','c','无事故痕迹','—',''],
+        ['右后翼子板内侧(骨架)','c','无事故痕迹','—',''],
+        ['后围板','c','无事故痕迹','—',''],['左后尾灯框架','c','无事故痕迹','—',''],
+        ['左后减震器座','d','不可检','受改装件遮挡',''],['右后纵梁','d','不可检','受装饰件遮挡','']
+      ] },
+    { key:'water', name:'泡水检测', conclTitle:'泡水结论：非泡水车', total:29, flaw:3,
+      text:'经<b>鉴见检测</b>，该车座椅滑轨及海绵、安全带、地毯、车身空腔、车辆底板及相关线束和电器元件等，共计 <b>29 项</b>泡水检测项，未发现因泡水产生的锈蚀、泥沙、积水、变色、霉斑痕迹。综合判定车辆为非泡水车。',
+      items:[
+        ['左侧门框内部空腔','c','无泡水痕迹','—',''],['右侧门框内部空腔','c','无泡水痕迹','—',''],
+        ['左侧门槛线束','c','无泡水痕迹','—',''],['右侧门槛线束','c','无泡水痕迹','—',''],
+        ['后排座椅骨架及海绵','c','无泡水痕迹','—',''],['OBD插接件','c','无泡水痕迹','—',''],
+        ['主驾座椅轨道及骨架','b','轻微瑕疵','局部疑似水渍，需复核',''],
+        ['副驾座椅轨道及骨架','b','轻微瑕疵','局部疑似水渍，需复核',''],
+        ['左侧脚部出风口','c','无泡水痕迹','—',''],['行李箱底板线束及保险盒','c','无泡水痕迹','—','']
+      ] },
+    { key:'fire', name:'火烧检测', conclTitle:'火烧结论：非火烧车', total:8, flaw:0,
+      text:'经<b>鉴见检测</b>，该车发动机内管路、驾驶舱内线束及饰板、燃油箱及管路、行李箱线束及饰板、全车覆盖件等，共计 <b>8 项</b>火烧检测项，未发现因火烧产生的熏黑、炙烤、烧蚀、融化痕迹。综合判定车辆为非火烧车。',
+      items:[
+        ['行李箱底板线束及保险盒','c','无火烧痕迹','—',''],['左后轮旋','c','无火烧痕迹','—',''],
+        ['右后轮旋','c','无火烧痕迹','—',''],['车身覆盖件','c','无火烧痕迹','—',''],
+        ['发动机舱隔音棉','c','无火烧痕迹','—',''],['发动机舱内管路','c','无火烧痕迹','—',''],
+        ['驾驶舱内饰板','c','无火烧痕迹','—',''],['蓄电池及附件','c','无火烧痕迹','—','']
+      ] },
+    { key:'paint', name:'漆面覆盖', conclTitle:'漆面结论：局部轻微修复', total:19, flaw:2,
+      text:'经<b>鉴见检测</b>，全车漆面覆盖共 <b>19 项</b>，其中 2 项存在轻微修复痕迹，其余原厂漆面状态良好。漆面结果按塑料件与金属件分别判定，详见下方明细。',
+      items:[
+        ['左前翼子板','b','轻微修复','塑料件 · 色差轻微',''],['前保险杠','c','原厂漆面','塑料件',''],
+        ['右前车门','c','原厂漆面','金属件',''],['左后车门','b','轻微修复','金属件 · 钣金',''],
+        ['后保险杠','c','原厂漆面','塑料件',''],['车顶','c','原厂漆面','金属件','']
+      ] },
+    { key:'glass', name:'全车玻璃', conclTitle:'玻璃结论：原厂玻璃为主', total:12, flaw:0,
+      text:'经<b>鉴见检测</b>，全车玻璃共 <b>12 项</b>，未发现更换或破损痕迹，角玻璃、天窗玻璃等按项配置未配备选项。',
+      items:[
+        ['前挡风玻璃','c','原厂玻璃','—',''],['左前门玻璃','c','原厂玻璃','—',''],
+        ['右前门玻璃','c','原厂玻璃','—',''],['天窗玻璃','d','未配备','—',''],['后挡风玻璃','c','原厂玻璃','—','']
+      ] },
+    { key:'obd', name:'OBD诊断', conclTitle:'OBD结论：无故障码', total:5, flaw:0,
+      text:'经<b>鉴见检测</b>，OBD 系统诊断共 <b>5 项</b>，气囊、车身稳定、刹车、娱乐系统等均无故障码。',
+      items:[
+        ['气囊故障码','c','无故障码','—',''],['车身稳定系统','c','无故障码','—',''],
+        ['刹车系统故障码','c','无故障码','—',''],['娱乐系统故障码','c','无故障码','—',''],['其他','c','无故障码','—','']
+      ] }
+  ];
+  var DEMO_VIEW = {
+    meta:{ vehicleName:'大众 帕萨特 330TSI', vehicleId:'LFZ7********028367', conclusion:'车况良好',
+      conclusionAttention:false, sub:'无重大事故 · 无泡水 · 无火烧', photoTag:'现场实拍',
+      reportNo:'JJC-20261124-0086', org:'鉴见示范检测中心', inspector:'陈工 · 持证检测师',
+      pack:'团标整车检测（示范清单）', standard:'机构审核发布的适用模板', version:'v1.0 · 发布时锁定',
+      hash:'9f3a7c21e8b4d506…c21e' },
+    alerts:[],
+    timeline:[
+      {t:'报告发布',s:'2026-11-24 15:42 · 机构管理员签发'},
+      {t:'审核通过',s:'2026-11-24 15:38 · 报告版本冻结'},
+      {t:'现场检测提交',s:'2026-11-24 14:20 · 检测师陈工'},
+      {t:'订单创建',s:'2026-11-24 13:05 · 团标整车检测'}
+    ],
+    disclaimer:'本报告基于现场检测时点车辆状况出具。检测项目为示范清单，标准依据与专业结论须经机构审核确认；报告仅对本次受检车辆负责，不含估价、交易撮合或价值承诺。完整标准原文不作为公开附件。结构示意图仅用于标注部位，非现场影像；现场照片以检测师实际上传为准。',
+    modules:DEMO_MODULES
+  };
+
+  // 把云端公开查询返回的字段适配为新设计所需结构
+  function adaptReport(d) {
+    var alerts = d.alerts || [];
+    var hasIssue = alerts.some(function (a) {
+      var t = String(a.type || '') + String(a.title || '');
+      return /accident|water|fire|事故|泡水|火烧/.test(t);
+    });
+    var sections = d.sections || [];
+    var modules = sections.map(function (s, i) {
+      var items = (s.items || []).map(function (it) {
+        return [it.n || '—', colorState(it.color), it.result || '—', it.note || '—', it.threshold || ''];
+      });
+      var flaw = items.filter(function (x) { return x[1] === 'a' || x[1] === 'b'; }).length;
+      var uncheck = items.filter(function (x) { return x[1] === 'd'; }).length;
+      var name = esc(s.name || '检测模块 ' + (i + 1));
+      var text = '经<b>鉴见检测</b>，' + name + '共 <b>' + items.length + ' 项</b>，其中 ' + flaw +
+        ' 项存在瑕疵或异常' + (uncheck ? '，' + uncheck + ' 项不可检' : '') + '。明细如下。';
+      var ph = (d.photos || []).filter(function (g) { return g && g.n === s.name; });
+      return { key:'m' + i, name:name, conclTitle:name + '结论', text:text,
+        total:items.length, flaw:flaw, items:items, photos:ph };
+    });
+    var sub = alerts.length ? alerts.map(function (a) { return esc(a.title || a.text || '详见结论'); }).join(' · ') : '未触发事故 / 泡水 / 火烧提示';
+    var timeline = [];
+    if (d.published_at) timeline.push({ t:'报告发布', s:fmtTime(d.published_at) + ' · 机构管理员签发' });
+    timeline.push({ t:'审核通过', s:'审核发布时已冻结报告版本' });
+    return {
+      meta:{
+        vehicleName: d.vehicle_kind === 'MOTORCYCLE' ? '受检摩托车' : '受检乘用车',
+        vehicleId: '车辆标识 ' + (d.plate ? maskPlate(d.plate) : '已脱敏'),
+        conclusion: hasIssue ? '需重点关注' : '车况良好', conclusionAttention:hasIssue,
+        sub:sub, photoTag:'车辆示意',
+        reportNo: d.report_no || '—', org: d.org_name || '—', inspector:'以机构签发为准',
+        pack: d.package_name || '—', standard: d.standard || '机构审核发布的适用模板',
+        version:'发布时锁定', hash:'—'
+      },
+      alerts:alerts, timeline:timeline,
+      disclaimer:(d.disclaimer || '') + (d.include_photos === false ? ' 本次分享未包含现场影像。' : ''),
+      modules:modules
+    };
+  }
+
+  function verdictHtml(alerts) {
+    var defs = [
+      {k:'accident', ico:ICONS.shield, ok:'非事故车', bad:'事故车提示', okSub:'结构件无重大损伤', badSub:'发现疑似事故痕迹'},
+      {k:'water', ico:ICONS.wave, ok:'非泡水车', bad:'泡水车提示', okSub:'无水渍泥沙痕迹', badSub:'发现疑似泡水痕迹'},
+      {k:'fire', ico:ICONS.fire, ok:'非火烧车', bad:'火烧车提示', okSub:'无熏黑碳化痕迹', badSub:'发现疑似火烧痕迹'}
+    ];
+    return defs.map(function (v) {
+      var hit = (alerts || []).some(function (a) {
+        return new RegExp(v.k + '|' + ({accident:'事故',water:'泡水',fire:'火烧'}[v.k])).test(String(a.type || '') + String(a.title || ''));
+      });
+      return '<div class="verdict"><div class="ic' + (hit ? ' bad' : '') + '">' + v.ico + '</div>' +
+        '<div class="lb' + (hit ? ' bad' : '') + '">' + (hit ? v.bad : v.ok) + '</div>' +
+        '<div class="sub">' + (hit ? v.badSub : v.okSub) + '</div></div>';
+    }).join('');
+  }
+
+  function photoSvg(seed, state) {
+    var tint = {a:['#C0553F','#F1DDD5'],b:['#B07A12','#F5EBCF'],c:['#2E7D5B','#D9EDE2'],d:['#86948F','#E3E8E5']}[state] || ['#86948F','#E3E8E5'];
+    var c = tint[0], bg = tint[1], v = (seed * 37) % 30;
+    return '<svg viewBox="0 0 132 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+      '<rect width="132" height="88" fill="' + bg + '"/>' +
+      '<path d="M0 66 Q40 60 72 66 T132 64 L132 88 L0 88 Z" fill="' + c + '" opacity=".14"/>' +
+      '<g stroke="' + c + '" stroke-width="1.1" fill="none" opacity=".85">' +
+        '<path d="M14 58 L24 40 L54 35 L68 22 L104 22 L120 40 L128 46"/>' +
+        '<path d="M14 58 L128 48 M24 40 L54 35 M68 22 L66 57 M104 22 L106 56"/>' +
+        '<circle cx="36" cy="60" r="9"/><circle cx="106" cy="60" r="9"/></g>' +
+      '<rect x="' + (30 + v) + '" y="' + (30 + v % 12) + '" width="22" height="16" rx="2" fill="' + c + '" opacity=".5"/>' +
+      '<path d="M' + (30 + v) + ' ' + (30 + v % 12) + ' l22 16 m0 -16 l-22 16" stroke="#fff" stroke-width="1" opacity=".7"/></svg>';
+  }
+  var stText = {a:'中度瑕疵', b:'轻微瑕疵', c:'正常', d:'不可检'};
+  var imgIcon = '<svg class="pico" viewBox="0 0 24 24" fill="none" stroke="#5A6E68" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9" r="1.6"/><path d="M3.5 17l5-5 3.5 3.5 3-3 5.5 5.5"/></svg>';
+
+  function renderMetrics() {
+    document.getElementById('metrics').innerHTML = MODULES.map(function (m) {
+      var pct = m.total ? Math.round(m.flaw / m.total * 100) : 0;
+      var col = m.flaw === 0 ? 'var(--good)' : 'var(--warn)';
+      return '<div class="metric"><div class="ring" style="background:conic-gradient(' + col + ' 0 ' + pct + '%, #EBF0EC ' + pct + '% 100%)"><span>' + m.flaw + '/' + m.total + '</span></div>' +
+        '<div class="ml">' + m.name + '</div></div>';
+    }).join('');
+  }
+  function buildTabs() {
+    var tabsEl = document.getElementById('tabs');
+    tabsEl.innerHTML = '';
+    MODULES.forEach(function (m, i) {
+      var t = document.createElement('div');
+      t.className = 'tab' + (i === 0 ? ' on' : '');
+      t.innerHTML = m.name + '<span class="num">' + m.flaw + '</span>';
+      t.onclick = function () {
+        current = i;
+        [].forEach.call(tabsEl.children, function (x, j) { x.className = 'tab' + (j === i ? ' on' : ''); });
+        flawOnly = false; document.getElementById('onlyFlaw').classList.remove('on');
+        render();
+      };
+      tabsEl.appendChild(t);
+    });
+  }
+  function render() {
+    var m = MODULES[current];
+    if (!m) return;
+    var list = flawOnly ? m.items.filter(function (x) { return x[1] === 'a' || x[1] === 'b' || x[1] === 'd'; }) : m.items;
+    var groups = m.photos || [];
+    var cells = list.map(function (it, i) {
+      var base = photoSvg(i + current * 11, it[1]);
+      var imgHtml = '', cap = '现场检测照片（示意）<br/>点击查看大图 · 实拍以检测师上传为准';
+      if (groups.length && groups[0].urls && groups[0].urls.length) {
+        var u = groups[0].urls[0];
+        if (/^https?:/.test(u)) {
+          imgHtml = '<img src="' + esc(u) + '" alt="现场照片" />';
+          cap = '现场检测照片 · 点击查看大图';
+        } else {
+          imgHtml = base;
+          cap = '现场影像存于云端，需机构授权后查看';
+        }
+      } else { imgHtml = base; }
+      return '<div class="item"><div class="cell" onclick="window.__jjDetail(' + i + ')">' +
+        '<div class="info"><div class="nm">' + esc(it[0]) + '</div>' +
+        '<div class="dsc">' + (it[4] ? '尺寸 ' + esc(it[4]) : (it[3] && it[3] !== '—' ? esc(it[3]) : stText[it[1]])) + '</div></div>' +
+        '<span class="right-wrap">' + imgIcon + '<span class="st ' + it[1] + '">' + stText[it[1]] + '</span></span></div>' +
+        '<div class="detail" id="d' + i + '">' +
+        '<div class="row"><span>车况状态</span><b>' + esc(it[2]) + '</b></div>' +
+        '<div class="row"><span>尺寸判定</span><b>' + (it[4] ? esc(it[4]) : '不适用') + '</b></div>' +
+        '<div class="row"><span>说明</span><b>' + esc(it[3]) + '</b></div>' +
+        '<div class="ph"><div class="bigph" onclick="window.__jjZoom(' + i + ')">' + imgHtml + '</div>' +
+        '<div class="phcap">' + cap + '</div></div></div></div>';
+    }).join('');
+    document.getElementById('moduleBody').innerHTML =
+      '<div class="concl"><div class="ch"><span class="dot"></span><span class="ct">' + m.conclTitle + '</span></div>' +
+        '<div class="body">' + m.text + '</div></div>' +
+      '<div class="illus"><img src="' + HERO_IMG + '" alt="全息车辆结构示意"/><span class="cap">全息结构示意 · 非现场影像</span></div>' +
+      '<div class="legends"><span class="lg a"><i></i>中度瑕疵</span><span class="lg b"><i></i>轻微瑕疵</span>' +
+        '<span class="lg c"><i></i>正常</span><span class="lg d"><i></i>不可检</span></div>' +
+      '<div class="grid">' + cells + '</div>';
+  }
+  window.__jjDetail = function (i) {
+    var el = document.getElementById('d' + i);
+    if (el) el.classList.toggle('open');
+  };
+  window.__jjZoom = function (i) {
+    var m = MODULES[current];
+    var list = flawOnly ? m.items.filter(function (x) { return x[1] === 'a' || x[1] === 'b' || x[1] === 'd'; }) : m.items;
+    var it = list[i];
+    var groups = m.photos || [];
+    var html, isImg = false;
+    if (groups.length && groups[0].urls && groups[0].urls.length && /^https?:/.test(groups[0].urls[0])) {
+      html = '<img src="' + esc(groups[0].urls[0]) + '" alt="现场照片"/>'; isImg = true;
+    } else { html = photoSvg(i + current * 11, it[1]); }
+    var ov = document.createElement('div');
+    ov.className = 'photo-viewer';
+    ov.innerHTML = '<div class="pv-inner"><div class="pv-title">现场照片' + (isImg ? '' : '（示意）') + ' · ' + esc(it[0]) + '</div>' + html +
+      '<div class="pv-meta">车况状态：' + esc(it[2]) + '</div><div class="pv-close">点击关闭</div></div>';
+    ov.onclick = function () { document.body.removeChild(ov); };
+    document.body.appendChild(ov);
+  };
+
+  function renderView(view) {
+    var v = view, meta = v.meta;
+    MODULES = v.modules;
+    current = 0; flawOnly = false;
+    var kv = function (k, val, mono) {
+      return '<div class="kv"><span class="k">' + esc(k) + '</span><span class="v"' + (mono ? '' : ' style="font-family:inherit"') + '>' + esc(val || '—') + '</span></div>';
+    };
+    var tl = (v.timeline || []).map(function (x) {
+      return '<div class="tl"><b>' + esc(x.t) + '</b><span>' + esc(x.s) + '</span></div>';
+    }).join('');
+    app.innerHTML =
+      '<div class="bar"><div class="brand">鉴见<small>INSPECTION STUDIO</small></div><div class="tag">只读报告 · 鉴见检测</div></div>' +
+      '<div class="hero"><div class="hero-veh"><div class="hero-info">' +
+        '<div class="hero-name">' + esc(meta.vehicleName) + '</div>' +
+        '<div class="hero-vin">' + esc(meta.vehicleId) + '</div>' +
+        '<div class="hero-concl"><span>检测结论</span><b' + (meta.conclusionAttention ? ' class="attention"' : '') + '>' + esc(meta.conclusion) + '</b></div>' +
+        '<div class="hero-sub">' + esc(meta.sub) + '</div></div>' +
+        '<div class="hero-photo"><img src="' + HERO_IMG + '" alt="受检车辆"/><span class="hp-tag">' + esc(meta.photoTag) + '</span></div>' +
+      '</div></div>' +
+      '<div class="wrap">' +
+        '<div class="card"><div class="verdicts">' + verdictHtml(v.alerts) + '</div></div>' +
+        '<div class="card"><div class="sec-head"><div class="t">检测概况 <span class="en">OVERVIEW</span></div>' +
+          '<div style="font-size:9px;color:var(--faint)">瑕疵 / 已检</div></div><div class="metrics" id="metrics"></div></div>' +
+        '<div class="card"><div class="sec-head"><div class="t">重大问题检测 <span class="en">KEY FINDINGS</span></div>' +
+          '<div class="chk" id="onlyFlaw"><span>只看瑕疵</span><div class="sw"></div></div></div>' +
+          '<div class="tabs" id="tabs"></div><div id="moduleBody"></div></div>' +
+        '<div class="card"><div class="sec-head"><div class="t">报告信息 <span class="en">INTEGRITY</span></div></div><div class="integrity">' +
+          kv('签发机构', meta.org) + kv('检测师', meta.inspector) + kv('检测套餐', meta.pack) +
+          kv('标准依据', meta.standard) + kv('报告版本', meta.version) + kv('内容哈希', meta.hash, true) +
+          (tl ? '<div class="timeline">' + tl + '</div>' : '') + '</div></div>' +
+        '<div class="card"><div class="disclaimer"><div class="h">说明与免责</div>' + esc(v.disclaimer) + '</div></div>' +
+        '<div class="sign"><div class="seal">鉴 见 检 测</div><br/>报告编号 ' + esc(meta.reportNo) +
+          ' · 签发机构 ' + esc(meta.org) + '<br/>鉴见 · INSPECTION STUDIO</div>' +
+      '</div>';
+    renderMetrics();
+    buildTabs();
+    document.getElementById('onlyFlaw').onclick = function () {
+      flawOnly = !flawOnly;
+      this.classList.toggle('on', flawOnly);
+      render();
+    };
+    render();
+  }
 
   function main() {
+    if (/[?&]demo=1/.test(location.search)) { renderView(DEMO_VIEW); return; }
     var token = getToken();
     if (!token) { state('!', '链接无效', '缺少分享令牌，请向检测机构索取完整链接。'); return; }
+    state('', '正在加载报告', '校验分享链接有效性…', true);
     db.rpc('public_report_by_token', { p_token: token }).then(function (r) {
       var d = r && r.data;
       if (r && r.error) { state('!', '无法读取报告', '服务暂时不可用，请稍后重试。'); return; }
@@ -199,12 +480,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei
         state('!', '链接不可用', msg);
         return;
       }
-      render(d);
+      renderView(adaptReport(d));
     }).catch(function () {
       state('!', '加载失败', '网络连接异常，请检查网络后重试。');
     });
   }
-
   main();
 })();
 </script>

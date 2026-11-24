@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>车辆检测报告 · 鉴见（静态预览）</title>
+<style>
+:root{
+  --forest:#174D45; --forest-deep:#123B35; --forest-soft:#2C6B5E; --lime:#C7E86A;
+  --ink:#1C2B2A; --muted:#6B7A78; --faint:#94A09E; --line:#D5DED9; --line-soft:#EAF0EC; --bg:#EDF1EE;
+  --card:#FFFFFF; --good:#2E7D5B; --good-bg:#EAF5EF; --warn:#B07A12; --warn-bg:#FBF2DF;
+  --bad:#B8402F; --bad-bg:#FBECE8; --info:#2C6E9B; --info-bg:#E8F1F8;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+.phone{max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;overflow:hidden}
+.bar{height:44px;background:var(--forest-deep);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:13px}
+.bar .brand{font-weight:600;letter-spacing:1px}
+.bar .brand small{font-size:8px;letter-spacing:1.2px;opacity:.6;margin-left:6px;font-weight:400}
+.bar .tag{font-size:10px;border:1px solid rgba(199,232,106,.5);color:var(--lime);padding:2px 8px;border-radius:10px}
+
+.hero{background:linear-gradient(160deg,var(--forest-deep),var(--forest));color:#fff;padding:20px 18px 40px;position:relative}
+.hero::after{content:"";position:absolute;right:-50px;top:-60px;width:220px;height:220px;border:1px solid rgba(199,232,106,.12);border-radius:50%}
+.hero::before{content:"";position:absolute;right:20px;top:20px;width:130px;height:130px;border:1px solid rgba(199,232,106,.09);border-radius:50%}
+.hero-veh{display:flex;gap:14px;align-items:center;position:relative;z-index:2}
+.hero-info{flex:1;min-width:0}
+.hero-name{font-size:18px;font-weight:600;line-height:1.3}
+.hero-vin{font-family:ui-monospace,monospace;font-size:11px;color:rgba(255,255,255,.62);letter-spacing:.5px;margin-top:5px}
+.hero-concl{display:flex;align-items:center;gap:7px;margin-top:12px;font-size:10px;color:rgba(255,255,255,.65)}
+.hero-concl b{font-size:11px;color:var(--forest-deep);background:var(--lime);border-radius:4px;padding:2px 8px;font-weight:600}
+.hero-sub{font-size:9px;color:rgba(255,255,255,.45);margin-top:6px}
+.hero-photo{width:118px;height:82px;border-radius:8px;overflow:hidden;flex-shrink:0;border:1px solid rgba(199,232,106,.35);position:relative}
+.hero-photo img{width:100%;height:100%;object-fit:cover;display:block}
+.hp-tag{position:absolute;left:4px;bottom:4px;background:rgba(18,59,53,.78);color:var(--lime);font-size:8px;padding:1px 5px;border-radius:3px}
+
+.wrap{padding:0;margin-top:-28px;position:relative;z-index:2}
+/* 卡片通栏，与顶部横幅同宽，保留四边完整线框 */
+.card{background:var(--card);border:1px solid var(--line);border-radius:0;margin-bottom:10px;overflow:hidden}
+.card-pad{padding:16px}
+
+.verdicts{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft)}
+.verdict{background:var(--card);padding:14px 6px;text-align:center}
+.verdict .ic{width:34px;height:34px;border-radius:50%;background:var(--good-bg);display:flex;align-items:center;justify-content:center;margin:0 auto 7px}
+.verdict .ic svg{width:19px;height:19px;stroke:var(--good);fill:none;stroke-width:1.7}
+.verdict .lb{font-size:12px;font-weight:600;color:var(--good)}
+.verdict .sub{font-size:9px;color:var(--faint);margin-top:2px}
+
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line-soft)}
+.metric{background:var(--card);padding:16px 4px 14px;text-align:center}
+.ring{width:52px;height:52px;margin:0 auto 7px;border-radius:50%;display:flex;align-items:center;justify-content:center;position:relative}
+.ring::after{content:"";position:absolute;width:40px;height:40px;border-radius:50%;background:#fff}
+.ring span{position:relative;z-index:2;font-size:13px;font-weight:600}
+.metric .ml{font-size:11px;color:var(--muted);margin-top:2px}
+.metric .md{font-size:9px;color:var(--faint)}
+
+.sec-head{padding:13px 16px 11px;border-bottom:1px solid var(--line-soft);display:flex;align-items:center;justify-content:space-between}
+.sec-head .t{font-size:15px;font-weight:600}
+.sec-head .t .en{font-size:9px;letter-spacing:1.5px;color:var(--faint);font-weight:400;margin-left:7px}
+.chk{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--muted)}
+.chk .sw{width:30px;height:17px;border-radius:10px;background:#D6DED9;position:relative;transition:.2s}
+.chk .sw::after{content:"";position:absolute;top:2px;left:2px;width:13px;height:13px;border-radius:50%;background:#fff;transition:.2s}
+.chk.on .sw{background:var(--forest)}
+.chk.on .sw::after{left:15px}
+
+.tabs{display:flex;overflow-x:auto;border-bottom:1px solid var(--line-soft);scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:10px 14px;font-size:12px;color:var(--muted);white-space:nowrap;border-bottom:2px solid transparent;flex-shrink:0;cursor:pointer}
+.tab.on{color:var(--forest);font-weight:600;border-color:var(--forest)}
+.tab .num{font-size:9px;color:var(--faint);margin-left:3px}
+
+.concl{margin:14px;padding:14px;background:#F7FAF8;border-radius:9px}
+.concl .ch{display:flex;align-items:center;gap:7px;margin-bottom:8px}
+.concl .dot{width:7px;height:7px;border-radius:50%;background:var(--good)}
+.concl .ct{font-size:13px;font-weight:600}
+.concl .body{font-size:12px;color:#465653;line-height:1.85}
+.concl .body b{color:var(--forest)}
+.concl .more{font-size:10px;color:var(--info);margin-top:8px;display:inline-block}
+
+.illus{margin:0 14px 14px;height:184px;background:#0C211F;border-radius:9px;position:relative;overflow:hidden}
+.illus img{width:100%;height:100%;object-fit:cover;display:block}
+.illus .cap{position:absolute;bottom:7px;right:10px;font-size:9px;color:rgba(199,232,106,.7);background:rgba(12,33,31,.6);padding:2px 6px;border-radius:3px}
+
+.legends{display:flex;gap:14px;padding:0 16px 11px;flex-wrap:wrap}
+.lg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted)}
+.lg i{width:9px;height:9px;border-radius:50%;display:block}
+.lg.a i{background:var(--bad)} .lg.b i{background:var(--warn)} .lg.c i{background:var(--good)} .lg.d i{background:#C8D0CC}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--line-soft);border-bottom:0}
+.item{background:var(--card);min-width:0;border-bottom:1px solid var(--line-soft)}
+.cell{display:flex;align-items:center;gap:7px;padding:10px 11px;cursor:pointer;min-height:46px}
+.cell:active{background:#F7FAF8}
+.cell .pico{width:16px;height:16px;flex-shrink:0;opacity:.55}
+.cell .info{flex:1;min-width:0}
+.cell .nm{font-size:11px;font-weight:500;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cell .dsc{font-size:9px;color:var(--faint);margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.right-wrap{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.cell .st{font-size:9px;padding:2px 6px;border-radius:9px;white-space:nowrap;flex-shrink:0;font-weight:500;display:flex;align-items:center;gap:3px}
+.cell .st::before{content:"";width:5px;height:5px;border-radius:50%;background:currentColor}
+.st.a{background:var(--bad-bg);color:var(--bad)} .st.b{background:var(--warn-bg);color:var(--warn)} .st.c{background:var(--good-bg);color:var(--good)} .st.d{background:#EEF1EF;color:#8A9591}
+
+.detail{background:#F7FAF8;padding:11px 11px;font-size:11px;display:none}
+.detail.open{display:block}
+.detail .row{display:flex;justify-content:space-between;padding:4px 0;color:var(--muted)}
+.detail .row b{color:var(--ink);font-weight:500}
+.detail .ph{margin-top:8px;display:flex;gap:10px;flex-wrap:wrap;align-items:flex-start}
+.detail .ph .bigph{width:132px;height:88px;border-radius:6px;overflow:hidden;border:1px solid var(--line);background:#EEF2EF}
+.detail .ph .bigph svg{width:100%;height:100%;display:block}
+.detail .ph .phcap{font-size:10px;color:var(--faint);line-height:1.7;max-width:150px}
+
+.integrity{padding:16px}
+.kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line-soft);font-size:12px}
+.kv:last-child{border:none}
+.kv .k{color:var(--muted)}
+.kv .v{font-family:ui-monospace,monospace;font-size:11px;text-align:right;word-break:break-all;max-width:62%}
+.timeline{margin-top:14px;padding-left:16px;border-left:1px solid var(--line-soft)}
+.tl{position:relative;padding:0 0 13px 14px;font-size:11px;color:var(--muted)}
+.tl:last-child{padding-bottom:0}
+.tl::before{content:"";position:absolute;left:-20px;top:5px;width:7px;height:7px;border-radius:50%;background:var(--forest);border:2px solid #fff}
+.tl b{color:var(--ink);font-weight:500;display:block}
+.tl span{font-size:10px;color:var(--faint)}
+
+.disclaimer{padding:16px;background:#F7FAF8;font-size:11px;color:var(--muted);line-height:1.8}
+.disclaimer .h{font-size:12px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.sign{text-align:center;padding:18px 0 28px;font-size:10px;color:var(--faint);line-height:1.9}
+.sign .seal{display:inline-block;border:1px solid var(--forest);color:var(--forest);border-radius:4px;padding:4px 12px;letter-spacing:3px;font-size:11px;margin-bottom:8px}
+
+.photo-viewer{position:fixed;inset:0;background:rgba(12,27,25,.9);z-index:99;display:flex;align-items:center;justify-content:center;padding:24px;cursor:zoom-out}
+.photo-viewer .pv-inner{width:100%;max-width:440px}
+.photo-viewer .pv-title{color:#fff;font-size:13px;margin-bottom:12px;text-align:center}
+.photo-viewer svg{width:100%;border-radius:8px;display:block;background:#EEF2EF}
+.photo-viewer .pv-meta{color:var(--lime);font-size:12px;margin-top:12px;text-align:center}
+.photo-viewer .pv-close{color:rgba(255,255,255,.5);font-size:11px;margin-top:22px;text-align:center}
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="bar">
+    <div class="brand">鉴见<small>INSPECTION STUDIO</small></div>
+    <div class="tag">只读报告 · 静态预览</div>
+  </div>
+
+  <div class="hero">
+    <div class="hero-veh">
+      <div class="hero-info">
+        <div class="hero-name">大众 帕萨特 330TSI</div>
+        <div class="hero-vin">LFZ7********028367</div>
+        <div class="hero-concl"><span>检测结论</span><b>车况良好</b></div>
+        <div class="hero-sub">无重大事故 · 无泡水 · 无火烧</div>
+      </div>
+      <div class="hero-photo">
+        <img src="assets/A_photorealistic_modern_luxury_2026-11-24T12-19-43.png" alt="受检车辆"/>
+        <span class="hp-tag">现场实拍</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <div class="verdicts">
+        <div class="verdict">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2L4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"/><path d="M8.5 12l2.5 2.5 5-5"/></svg></div>
+          <div class="lb">非事故车</div><div class="sub">结构件无重大损伤</div>
+        </div>
+        <div class="verdict">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M3 15c3-2 5 2 9 0s6-2 9 0"/><path d="M5 10l2-5 3 4 3-6 3 7 3-4 2 4"/></svg></div>
+          <div class="lb">非泡水车</div><div class="sub">无水渍泥沙痕迹</div>
+        </div>
+        <div class="verdict">
+          <div class="ic"><svg viewBox="0 0 24 24"><path d="M12 2c2 4 6 6 6 11a6 6 0 0 1-12 0c0-3 2-5 4-7 0 3 2 4 2 4s0-4 0-8z"/></svg></div>
+          <div class="lb">非火烧车</div><div class="sub">无熏黑碳化痕迹</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-head"><div class="t">检测概况 <span class="en">OVERVIEW</span></div><div class="md" style="font-size:9px;color:var(--faint)">瑕疵 / 已检</div></div>
+      <div class="metrics" id="metrics"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-head">
+        <div class="t">重大问题检测 <span class="en">KEY FINDINGS</span></div>
+        <div class="chk" id="onlyFlaw"><span>只看瑕疵</span><div class="sw"></div></div>
+      </div>
+      <div class="tabs" id="tabs"></div>
+      <div id="moduleBody"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-head"><div class="t">报告信息 <span class="en">INTEGRITY</span></div></div>
+      <div class="integrity">
+        <div class="kv"><span class="k">签发机构</span><span class="v" style="font-family:inherit">鉴见示范检测中心</span></div>
+        <div class="kv"><span class="k">检测师</span><span class="v" style="font-family:inherit">陈工 · 持证检测师</span></div>
+        <div class="kv"><span class="k">检测套餐</span><span class="v" style="font-family:inherit">团标整车检测（示范清单）</span></div>
+        <div class="kv"><span class="k">标准依据</span><span class="v" style="font-family:inherit">机构审核发布的适用模板</span></div>
+        <div class="kv"><span class="k">报告版本</span><span class="v">v1.0 · 发布时锁定</span></div>
+        <div class="kv"><span class="k">内容哈希</span><span class="v">9f3a7c21e8b4d506…c21e</span></div>
+        <div class="timeline">
+          <div class="tl"><b>报告发布</b><span>2026-11-24 15:42 · 机构管理员签发</span></div>
+          <div class="tl"><b>审核通过</b><span>2026-11-24 15:38 · 报告版本冻结</span></div>
+          <div class="tl"><b>现场检测提交</b><span>2026-11-24 14:20 · 检测师陈工</span></div>
+          <div class="tl"><b>订单创建</b><span>2026-11-24 13:05 · 团标整车检测</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="disclaimer">
+        <div class="h">说明与免责</div>
+        本报告基于现场检测时点车辆状况出具。检测项目为示范清单，标准依据与专业结论须经机构审核确认；报告仅对本次受检车辆负责，不含估价、交易撮合或价值承诺。完整标准原文不作为公开附件。结构示意图仅用于标注部位，非现场影像；现场照片以检测师实际上传为准。
+      </div>
+    </div>
+
+    <div class="sign">
+      <div class="seal">鉴 见 检 测</div><br/>
+      报告编号 JJC-20261124-0086 · 签发机构 鉴见示范检测中心<br/>
+      鉴见 · INSPECTION STUDIO
+    </div>
+  </div>
+</div>
+
+<script>
+var MODULES = [
+  {
+    key:'accident', name:'事故检测', conclTitle:'事故结论：非事故车',
+    text:'经<b>鉴见检测</b>，该车前后纵梁、上下边梁、ABCD柱、减震器座等结构件，以及防火墙、水箱框架、翼子板骨架、后围板等加强件，共计 <b>59 项</b>事故检测项，未发现有符合事故车标准的切割、焊接、更换、变形、钣金修复痕迹。综合判定车辆为非事故车。',
+    flaw:4, uncheck:4, total:59,
+    illus:'<svg viewBox="0 0 300 120" fill="none" stroke="#819690" stroke-width="1.1"><path d="M30 78 L42 56 L92 50 L120 28 L200 28 L232 52 L272 60 L280 82"/><path d="M30 78 L280 82 M42 56 L92 50 M120 28 L200 28 M120 28 L116 78 M200 28 L204 80 M92 50 L88 80 M232 52 L228 82"/><circle cx="70" cy="82" r="11"/><circle cx="240" cy="83" r="11"/><path d="M116 78 L204 80 M160 28 L160 79"/></svg>',
+    items:[
+      ['左侧下边梁','b','中度瑕疵','结构示意标注 · 建议实车复核','小于30cm×30cm'],
+      ['右前大灯框架','c','无事故痕迹','—',''],
+      ['左侧上边梁','c','无事故痕迹','—',''],
+      ['左前翼子板','b','轻微瑕疵','轻微钣金修复','小于30cm×30cm'],
+      ['仪表台骨架','c','无事故痕迹','—',''],
+      ['左后翼子板内侧(骨架)','c','无事故痕迹','—',''],
+      ['右后翼子板内侧(骨架)','c','无事故痕迹','—',''],
+      ['后围板','c','无事故痕迹','—',''],
+      ['左后尾灯框架','c','无事故痕迹','—',''],
+      ['左后减震器座','d','不可检','受改装件遮挡',''],
+      ['右后纵梁','d','不可检','受装饰件遮挡','']
+    ]
+  },
+  {
+    key:'water', name:'泡水检测', conclTitle:'泡水结论：非泡水车',
+    text:'经<b>鉴见检测</b>，该车座椅滑轨及海绵、安全带、地毯、车身空腔、车辆底板及相关线束和电器元件等，共计 <b>29 项</b>泡水检测项，未发现因泡水产生的锈蚀、泥沙、积水、变色、霉斑痕迹。综合判定车辆为非泡水车。',
+    flaw:3, uncheck:0, total:29,
+    illus:'<svg viewBox="0 0 300 120" fill="none" stroke="#819690" stroke-width="1.1"><path d="M28 80 L40 58 L95 52 L122 30 L198 30 L230 54 L272 62 L280 84 Z"/><path d="M28 80 L280 84 M95 52 L92 82 M122 30 L120 82 M198 30 L200 82 M40 58 L272 62"/><circle cx="68" cy="84" r="10"/><circle cx="240" cy="85" r="10"/><path d="M120 82 L200 82 M150 40 L150 70 M180 40 L180 70"/></svg>',
+    items:[
+      ['左侧门框内部空腔','c','无泡水痕迹','—',''],
+      ['右侧门框内部空腔','c','无泡水痕迹','—',''],
+      ['左侧门槛线束','c','无泡水痕迹','—',''],
+      ['右侧门槛线束','c','无泡水痕迹','—',''],
+      ['后排座椅骨架及海绵','c','无泡水痕迹','—',''],
+      ['OBD插接件','c','无泡水痕迹','—',''],
+      ['主驾座椅轨道及骨架','b','轻微瑕疵','局部疑似水渍，需复核',''],
+      ['副驾座椅轨道及骨架','b','轻微瑕疵','局部疑似水渍，需复核',''],
+      ['左侧脚部出风口','c','无泡水痕迹','—',''],
+      ['行李箱底板线束及保险盒','c','无泡水痕迹','—','']
+    ]
+  },
+  {
+    key:'fire', name:'火烧检测', conclTitle:'火烧结论：非火烧车',
+    text:'经<b>鉴见检测</b>，该车发动机内管路、驾驶舱内线束及饰板、燃油箱及管路、行李箱线束及饰板、全车覆盖件等，共计 <b>8 项</b>火烧检测项，未发现因火烧产生的熏黑、炙烤、烧蚀、融化痕迹。综合判定车辆为非火烧车。',
+    flaw:0, uncheck:0, total:8,
+    illus:'<svg viewBox="0 0 300 120" fill="none" stroke="#819690" stroke-width="1.1"><path d="M26 80 L38 58 L96 50 L124 28 L196 28 L228 52 L274 62 L282 84 Z"/><path d="M26 80 L282 84 M124 28 L124 80 M196 28 L196 80 M96 50 L96 82 M228 52 L228 82"/><circle cx="66" cy="84" r="10"/><circle cx="242" cy="85" r="10"/><path d="M124 80 L196 80 M145 45 L175 45 M145 60 L175 60"/></svg>',
+    items:[
+      ['行李箱底板线束及保险盒','c','无火烧痕迹','—',''],
+      ['左后轮旋','c','无火烧痕迹','—',''],
+      ['右后轮旋','c','无火烧痕迹','—',''],
+      ['车身覆盖件','c','无火烧痕迹','—',''],
+      ['发动机舱隔音棉','c','无火烧痕迹','—',''],
+      ['发动机舱内管路','c','无火烧痕迹','—',''],
+      ['驾驶舱内饰板','c','无火烧痕迹','—',''],
+      ['蓄电池及附件','c','无火烧痕迹','—','']
+    ]
+  },
+  {
+    key:'paint', name:'漆面覆盖', conclTitle:'漆面结论：局部轻微修复',
+    text:'经<b>鉴见检测</b>，全车漆面覆盖共 <b>19 项</b>，其中 2 项存在轻微修复痕迹，其余原厂漆面状态良好。漆面结果按塑料件与金属件分别判定，详见下方明细。',
+    flaw:2, uncheck:0, total:19,
+    illus:'<svg viewBox="0 0 300 120" fill="none" stroke="#819690" stroke-width="1.1"><path d="M26 80 L38 58 L96 50 L124 28 L196 28 L228 52 L274 62 L282 84 Z"/><path d="M26 80 L282 84 M124 28 L124 80 M196 28 L196 80 M160 28 L160 82"/><circle cx="66" cy="84" r="10"/><circle cx="242" cy="85" r="10"/></svg>',
+    items:[
+      ['左前翼子板','b','轻微修复','塑料件 · 色差轻微',''],
+      ['前保险杠','c','原厂漆面','塑料件',''],
+      ['右前车门','c','原厂漆面','金属件',''],
+      ['左后车门','b','轻微修复','金属件 · 钣金',''],
+      ['后保险杠','c','原厂漆面','塑料件',''],
+      ['车顶','c','原厂漆面','金属件','']
+    ]
+  },
+  {
+    key:'glass', name:'全车玻璃', conclTitle:'玻璃结论：原厂玻璃为主',
+    text:'经<b>鉴见检测</b>，全车玻璃共 <b>12 项</b>，未发现更换或破损痕迹，角玻璃、天窗玻璃等按项配置未配备选项。',
+    flaw:0, uncheck:1, total:12,
+    illus:'<svg viewBox="0 0 300 120" fill="none" stroke="#819690" stroke-width="1.1"><path d="M26 80 L38 58 L96 50 L124 28 L196 28 L228 52 L274 62 L282 84 Z"/><path d="M124 28 L124 78 M196 28 L196 78 M38 58 L96 50 L96 78 M228 52 L274 62 L274 82"/><circle cx="66" cy="84" r="10"/><circle cx="242" cy="85" r="10"/></svg>',
+    items:[
+      ['前挡风玻璃','c','原厂玻璃','—',''],
+      ['左前门玻璃','c','原厂玻璃','—',''],
+      ['右前门玻璃','c','原厂玻璃','—',''],
+      ['天窗玻璃','d','未配备','—',''],
+      ['后挡风玻璃','c','原厂玻璃','—','']
+    ]
+  },
+  {
+    key:'obd', name:'OBD诊断', conclTitle:'OBD结论：无故障码',
+    text:'经<b>鉴见检测</b>，OBD 系统诊断共 <b>5 项</b>，气囊、车身稳定、刹车、娱乐系统等均无故障码。',
+    flaw:0, uncheck:0, total:5,
+    illus:'<svg viewBox="0 0 300 120" fill="none" stroke="#819690" stroke-width="1.1"><rect x="110" y="32" width="80" height="56" rx="6"/><path d="M126 48h48 M126 60h48 M126 72h30"/><path d="M60 60h40 M200 60h40"/></svg>',
+    items:[
+      ['气囊故障码','c','无故障码','—',''],
+      ['车身稳定系统','c','无故障码','—',''],
+      ['刹车系统故障码','c','无故障码','—',''],
+      ['娱乐系统故障码','c','无故障码','—',''],
+      ['其他','c','无故障码','—','']
+    ]
+  }
+];
+
+var tabsEl = document.getElementById('tabs');
+var bodyEl = document.getElementById('moduleBody');
+var onlyFlaw = document.getElementById('onlyFlaw');
+var metricsEl = document.getElementById('metrics');
+var current = 0, flawOnly = false;
+
+(function renderMetrics() {
+  metricsEl.innerHTML = MODULES.map(function (m) {
+    var pct = m.total ? Math.round(m.flaw / m.total * 100) : 0;
+    var col = m.flaw === 0 ? 'var(--good)' : 'var(--warn)';
+    return '<div class="metric">' +
+      '<div class="ring" style="background:conic-gradient(' + col + ' 0 ' + pct + '%, #EBF0EC ' + pct + '% 100%)"><span>' + m.flaw + '/' + m.total + '</span></div>' +
+      '<div class="ml">' + m.name + '</div></div>';
+  }).join('');
+})();
+
+MODULES.forEach(function (m, i) {
+  var t = document.createElement('div');
+  t.className = 'tab' + (i === 0 ? ' on' : '');
+  t.innerHTML = m.name + '<span class="num">' + m.flaw + '</span>';
+  t.onclick = function () {
+    current = i;
+    [].forEach.call(tabsEl.children, function (x, j) { x.className = 'tab' + (j === i ? ' on' : ''); });
+    flawOnly = false; onlyFlaw.classList.remove('on');
+    render();
+  };
+  tabsEl.appendChild(t);
+});
+
+onlyFlaw.onclick = function () {
+  flawOnly = !flawOnly;
+  onlyFlaw.classList.toggle('on', flawOnly);
+  render();
+};
+
+function photoSvg(seed, state) {
+  var tint = {a:['#C0553F','#F1DDD5'],b:['#B07A12','#F5EBCF'],c:['#2E7D5B','#D9EDE2'],d:['#86948F','#E3E8E5']}[state];
+  var c = tint[0], bg = tint[1];
+  var v = (seed * 37) % 30;
+  return '<svg viewBox="0 0 132 88" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">' +
+    '<rect width="132" height="88" fill="' + bg + '"/>' +
+    '<path d="M0 66 Q40 60 72 66 T132 64 L132 88 L0 88 Z" fill="' + c + '" opacity=".14"/>' +
+    '<g stroke="' + c + '" stroke-width="1.1" fill="none" opacity=".85">' +
+      '<path d="M14 58 L24 40 L54 35 L68 22 L104 22 L120 40 L128 46"/>' +
+      '<path d="M14 58 L128 48 M24 40 L54 35 M68 22 L66 57 M104 22 L106 56"/>' +
+      '<circle cx="36" cy="60" r="9"/><circle cx="106" cy="60" r="9"/>' +
+    '</g>' +
+    '<rect x="' + (30 + v) + '" y="' + (30 + v % 12) + '" width="22" height="16" rx="2" fill="' + c + '" opacity=".5"/>' +
+    '<path d="M' + (30 + v) + ' ' + (30 + v % 12) + ' l22 16 m0 -16 l-22 16" stroke="#fff" stroke-width="1" opacity=".7"/>' +
+    '</svg>';
+}
+var stText = {a:'中度瑕疵',b:'轻微瑕疵',c:'正常',d:'不可检'};
+function render() {
+  var m = MODULES[current];
+  var list = flawOnly ? m.items.filter(function (x) { return x[1] === 'a' || x[1] === 'b' || x[1] === 'd'; }) : m.items;
+  var imgIcon = '<svg class="pico" viewBox="0 0 24 24" fill="none" stroke="#5A6E68" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2.5"/><circle cx="8.5" cy="9" r="1.6"/><path d="M3.5 17l5-5 3.5 3.5 3-3 5.5 5.5"/></svg>';
+  var cells = list.map(function (it, i) {
+    var ph = photoSvg(i + current * 11, it[1]);
+    return '<div class="item">' +
+      '<div class="cell" onclick="toggleDetail(' + i + ')">' +
+        '<div class="info"><div class="nm">' + it[0] + '</div>' +
+          '<div class="dsc">' + (it[4] ? '尺寸 ' + it[4] : (it[3] && it[3] !== '—' ? it[3] : stText[it[1]])) + '</div></div>' +
+        '<span class="right-wrap">' + imgIcon + '<span class="st ' + it[1] + '">' + stText[it[1]] + '</span></span>' +
+      '</div>' +
+      '<div class="detail" id="d' + i + '">' +
+        '<div class="row"><span>车况状态</span><b>' + it[2] + '</b></div>' +
+        '<div class="row"><span>尺寸判定</span><b>' + (it[4] || '不适用') + '</b></div>' +
+        '<div class="row"><span>说明</span><b>' + it[3] + '</b></div>' +
+        '<div class="ph"><div class="bigph" onclick="zoomPhoto(\'' + i + '\')">' + ph + '</div>' +
+          '<div class="phcap">现场检测照片（示意）<br/>点击查看大图 · 实拍以检测师上传为准</div></div>' +
+      '</div></div>';
+  }).join('');
+  bodyEl.innerHTML =
+    '<div class="concl"><div class="ch"><span class="dot"></span><span class="ct">' + m.conclTitle + '</span></div>' +
+      '<div class="body">' + m.text + '</div><span class="more">查看判定依据 ›</span></div>' +
+    '<div class="illus"><img src="assets/A_photorealistic_modern_luxury_2026-11-24T12-19-43.png" alt="全息车辆结构示意"/><span class="cap">全息结构示意 · 非现场影像</span></div>' +
+    '<div class="legends"><span class="lg a"><i></i>中度瑕疵</span><span class="lg b"><i></i>轻微瑕疵</span>' +
+      '<span class="lg c"><i></i>正常</span><span class="lg d"><i></i>不可检</span></div>' +
+    '<div class="grid">' + cells + '</div>';
+}
+function toggleDetail(i) {
+  var el = document.getElementById('d' + i);
+  if (el) el.classList.toggle('open');
+}
+function zoomPhoto(i) {
+  var m = MODULES[current];
+  var list = flawOnly ? m.items.filter(function (x) { return x[1] === 'a' || x[1] === 'b' || x[1] === 'd'; }) : m.items;
+  var it = list[i];
+  var svg = photoSvg(i + current * 11, it[1]);
+  var ov = document.createElement('div');
+  ov.className = 'photo-viewer';
+  ov.innerHTML = '<div class="pv-inner"><div class="pv-title">现场照片（示意） · ' + it[0] + '</div>' + svg +
+    '<div class="pv-meta">车况状态：' + it[2] + '</div><div class="pv-close">点击关闭</div></div>';
+  ov.onclick = function () { document.body.removeChild(ov); };
+  document.body.appendChild(ov);
+}
+render();
+</script>
+</body>
+</html>
