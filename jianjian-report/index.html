@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="robots" content="noindex, nofollow" />
+<title>车辆检测报告 · 鉴见</title>
+<script src="https://cdn.jsdelivr.net/npm/@tencent-ai/workbuddy-cloud-sdk@dev/lib/index.global.js"></script>
+<style>
+:root{
+  --forest:#174D45; --forest-deep:#123B35; --lime:#C7E86A; --ink:#1C2B2A;
+  --muted:#6B7A78; --line:#E2E8E5; --bg:#F4F6F4; --card:#FFFFFF;
+  --red:#C0392B; --amber:#B8860B; --green:#2E7D5B; --blue:#2C6E9B;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--ink);font-size:14px;line-height:1.6}
+#app{max-width:520px;margin:0 auto;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+.cover{background:linear-gradient(155deg,var(--forest-deep),var(--forest));color:#fff;padding:30px 22px 26px;position:relative;overflow:hidden}
+.cover::after{content:"";position:absolute;right:-40px;top:-30px;width:170px;height:170px;border:1px solid rgba(199,232,106,.18);border-radius:50%}
+.cover::before{content:"";position:absolute;right:10px;top:30px;width:110px;height:110px;border:1px solid rgba(199,232,106,.12);border-radius:50%}
+.brand{font-size:13px;letter-spacing:2px;color:var(--lime);font-weight:600}
+.brand small{display:block;font-size:9px;letter-spacing:1.4px;color:rgba(255,255,255,.55);margin-top:3px}
+.cover h1{font-size:24px;font-weight:600;margin:26px 0 6px}
+.cover .no{font-size:12px;color:rgba(255,255,255,.6);font-family:ui-monospace,monospace}
+.cover .seal{display:inline-block;margin-top:18px;border:1px solid rgba(199,232,106,.5);color:var(--lime);font-size:11px;letter-spacing:3px;padding:4px 10px;border-radius:2px}
+.body{padding:16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px;margin-bottom:12px}
+.eyebrow{font-size:9px;letter-spacing:1.6px;color:var(--muted);text-transform:uppercase}
+.h2{font-size:16px;font-weight:600;margin:4px 0 12px}
+.row{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-bottom:1px solid #F0F3F1;font-size:13px}
+.row:last-child{border-bottom:none}
+.row .k{color:var(--muted);flex-shrink:0}
+.row .v{flex:1;min-width:0;text-align:right;word-break:break-all;overflow-wrap:anywhere}
+.alert,.ok{overflow-wrap:anywhere}
+.ri-top span:first-child{min-width:0;overflow-wrap:anywhere}
+.alert{border-radius:8px;padding:11px 13px;margin-bottom:9px;font-size:13px;border-left:3px solid}
+.alert .t{font-weight:600;margin-bottom:2px}
+.alert.accident{background:#FCEEEC;border-color:var(--red);color:#8E2B20}
+.alert.water{background:#E9F1F8;border-color:var(--blue);color:#1F557B}
+.alert.fire{background:#FBF0E2;border-color:var(--amber);color:#8A5E08}
+.ok{background:#EAF5EF;border:1px solid #CFE7D9;color:var(--green);border-radius:8px;padding:12px;font-size:13px}
+.sec-title{font-size:13px;font-weight:600;color:var(--forest);margin:2px 0 8px}
+.ri{padding:9px 0;border-bottom:1px solid #F0F3F1}
+.ri:last-child{border-bottom:none}
+.ri-top{display:flex;justify-content:space-between;gap:10px;font-size:13px}
+.rv{font-weight:600;flex-shrink:0}
+.rv.good{color:var(--green)} .rv.warn{color:var(--amber)} .rv.bad{color:var(--red)} .rv.neutral{color:var(--muted)}
+.ri-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.photo-group{margin-bottom:14px}
+.pg-name{font-size:12px;color:var(--muted);margin-bottom:6px}
+.photos{display:flex;gap:6px;flex-wrap:wrap}
+.photos img{width:78px;height:78px;object-fit:cover;border-radius:6px;border:1px solid var(--line)}
+.photo-empty,.photo-locked{font-size:12px;color:var(--muted);background:#F7F9F8;padding:10px;border-radius:6px}
+.disclaimer{background:#F7F9F8;font-size:12px;color:var(--muted);line-height:1.7}
+.signoff{text-align:center;color:var(--muted);font-size:11px;padding:10px 0 24px;line-height:1.9}
+.state{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px;text-align:center}
+.state-box{max-width:340px}
+.state-icon{width:58px;height:58px;border-radius:50%;background:#FCEEEC;color:var(--red);display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 18px}
+.state-icon.load{background:#EAF5EF;color:var(--green)}
+.state h3{font-size:17px;margin-bottom:8px}
+.state p{color:var(--muted);font-size:13px;margin-bottom:18px}
+.spinner{width:26px;height:26px;border:3px solid #CFE7D9;border-top-color:var(--forest);border-radius:50%;animation:sp .8s linear infinite;margin:0 auto 18px}
+@keyframes sp{to{transform:rotate(360deg)}}
+.foot-logo{text-align:center;font-size:10px;color:var(--muted);letter-spacing:1px;padding:0 0 20px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="state">
+    <div class="spinner"></div>
+    <div class="state-box"><h3>正在加载报告</h3><p>校验分享链接有效性…</p></div>
+  </div>
+</div>
+<script>
+(function () {
+  var PUB = {
+    endpoint: 'https://mp-api.app.workbuddy.host',
+    publishableKey: 'wbpk_lP2SAs1GOInZrKBVA68bB6_dvVXwlQc786ZuFCsA880goSt7ys4FqCf'
+  };
+  var cloud = window.WorkBuddyCloud.createWorkBuddyCloud(PUB);
+  var db = cloud.database;
+  var app = document.getElementById('app');
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+  function state(icon, title, desc, load) {
+    app.innerHTML = '<div class="state"><div class="state-box">' +
+      (load ? '<div class="spinner"></div>' : '<div class="state-icon ' + (load ? 'load' : '') + '">' + icon + '</div>') +
+      '<h3>' + esc(title) + '</h3><p>' + esc(desc) + '</p></div></div>';
+  }
+  function colorCls(c) { return c === 'good' || c === 'warn' || c === 'bad' ? c : 'neutral'; }
+  function maskPlate(p, enabled) {
+    if (!enabled || !p || p.length < 4) return p;
+    return p.substring(0, 2) + '***' + p.substring(p.length - 2);
+  }
+
+  function getToken() {
+    var m = location.search.match(/[?&]t=([^&#]+)/);
+    if (m) return decodeURIComponent(m[1]);
+    var path = location.pathname.match(/\/r\/([^/]+)/);
+    return path ? decodeURIComponent(path[1]) : '';
+  }
+
+  function render(d) {
+    var includePhotos = d.include_photos !== false;
+    var alertsHtml = '';
+    var alerts = d.alerts || [];
+    if (alerts.length) {
+      alertsHtml = alerts.map(function (a) {
+        var type = a.type || '';
+        var cls = type.indexOf('accident') >= 0 ? 'accident' : type.indexOf('water') >= 0 ? 'water' : type.indexOf('fire') >= 0 ? 'fire' : 'accident';
+        return '<div class="alert ' + cls + '"><div class="t">' + esc(a.title || '重要提示') + '</div>' + esc(a.text || '') + '</div>';
+      }).join('');
+    } else {
+      alertsHtml = '<div class="ok">未触发事故车 / 泡水车 / 火烧车提示</div>';
+    }
+
+    var sectionsHtml = (d.sections || []).map(function (s) {
+      var rows = (s.items || []).map(function (it) {
+        return '<div class="ri"><div class="ri-top"><span>' + esc(it.n) + '</span>' +
+          '<span class="rv ' + colorCls(it.color) + '">' + esc(it.result) + '</span></div>' +
+          (it.threshold ? '<div class="ri-sub">尺寸判定：' + esc(it.threshold) + '</div>' : '') +
+          (it.note ? '<div class="ri-sub">说明：' + esc(it.note) + '</div>' : '') + '</div>';
+      }).join('');
+      return '<div class="card"><div class="eyebrow">RESULT</div><div class="sec-title">' + esc(s.name) + '</div>' + rows + '</div>';
+    }).join('');
+
+    var photoHtml = '';
+    if (includePhotos) {
+      var groups = d.photos || [];
+      if (groups.length) {
+        var inner = groups.map(function (g) {
+          var imgs = (g.urls || []).map(function (u) {
+            if (/^(cloud:\/\/|\/|\w+\/)/.test(u) && !/^https?:/.test(u)) {
+              return '<div class="photo-locked">现场影像存于云端，需机构授权后查看</div>';
+            }
+            return '<img src="' + esc(u) + '" alt="现场照片" onclick="window.open(this.src)" />';
+          }).join('');
+          return '<div class="photo-group"><div class="pg-name">' + esc(g.n) + ' · ' + esc(g.result) + '</div><div class="photos">' + imgs + '</div></div>';
+        }).join('');
+        photoHtml = '<div class="card"><div class="eyebrow">EVIDENCE</div><div class="h2">现场影像</div>' + inner + '</div>';
+      } else {
+        photoHtml = '<div class="card"><div class="eyebrow">EVIDENCE</div><div class="h2">现场影像</div><div class="photo-empty">本次检测未附带可公开展示的现场影像。</div></div>';
+      }
+    }
+
+    app.innerHTML =
+      '<div class="cover">' +
+        '<div class="brand">鉴见<small>INSPECTION STUDIO</small></div>' +
+        '<h1>车辆检测报告</h1>' +
+        '<div class="no">' + esc(d.report_no) + '</div>' +
+        '<div class="seal">检 测 专 用</div>' +
+      '</div>' +
+      '<div class="body">' +
+        '<div class="card"><div class="eyebrow">CONCLUSION</div><div class="h2">检测结论</div>' +
+          '<div class="row"><span class="k">签发机构</span><span class="v">' + esc(d.org_name) + '</span></div>' +
+          '<div class="row"><span class="k">签发时间</span><span class="v">' + esc(fmtTime(d.published_at)) + '</span></div>' +
+          '<div class="row"><span class="k">检测套餐</span><span class="v">' + esc(d.package_name) + '</span></div>' +
+          '<div class="row"><span class="k">标准依据</span><span class="v">' + esc(d.standard || '机构审核发布的适用模板') + '</span></div>' +
+          '<div style="margin-top:12px">' + alertsHtml + '</div>' +
+        '</div>' +
+        '<div class="card"><div class="eyebrow">VEHICLE</div><div class="h2">车辆信息</div>' +
+          '<div class="row"><span class="k">车辆类型</span><span class="v">' + esc(d.vehicle_kind === 'MOTORCYCLE' ? '摩托车' : '乘用车') + '</span></div>' +
+          '<div class="row"><span class="k">车牌</span><span class="v">' + esc(d.plate || '—') + '</span></div>' +
+        '</div>' +
+        sectionsHtml + photoHtml +
+        '<div class="card disclaimer"><div class="eyebrow">DISCLAIMER</div><div class="h2" style="font-size:14px;margin-top:4px">说明与免责</div>' +
+          esc(d.disclaimer) +
+          '<div style="margin-top:8px">本报告为只读版本，内容在审核发布时已锁定。完整标准原文不作为公开附件。报告不含估价、交易撮合或价值承诺。</div>' +
+        '</div>' +
+        '<div class="signoff"><div>签发机构：' + esc(d.org_name) + '</div>' +
+          '<div>报告编号：' + esc(d.report_no) + '</div>' +
+          '<div>鉴见 · INSPECTION STUDIO</div></div>' +
+      '</div>';
+  }
+
+  function fmtTime(v) {
+    if (!v) return '—';
+    var d = new Date(v);
+    if (isNaN(d.getTime())) return String(v);
+    return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0') +
+      ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  }
+
+  function main() {
+    var token = getToken();
+    if (!token) { state('!', '链接无效', '缺少分享令牌，请向检测机构索取完整链接。'); return; }
+    db.rpc('public_report_by_token', { p_token: token }).then(function (r) {
+      var d = r && r.data;
+      if (r && r.error) { state('!', '无法读取报告', '服务暂时不可用，请稍后重试。'); return; }
+      if (!d || !d.valid) {
+        var reason = d && d.reason;
+        var msg = reason === 'invalid_or_expired' ? '链接已过期或被撤销，请联系检测机构重新生成。'
+          : reason === 'unavailable' ? '报告暂不可用，请联系检测机构。'
+          : '分享令牌无效，请核对后重试。';
+        state('!', '链接不可用', msg);
+        return;
+      }
+      render(d);
+    }).catch(function () {
+      state('!', '加载失败', '网络连接异常，请检查网络后重试。');
+    });
+  }
+
+  main();
+})();
+</script>
+</body>
+</html>

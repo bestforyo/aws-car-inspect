@@ -94,22 +94,66 @@ function listReviewQueue() {
     .order('updated_at', { ascending: true }).then(unwrap);
 }
 
-function approve(orderId, revisionId) {
-  var reportNo = 'RPT-' + U.orderNo();
-  var report = {
-    id: U.uid('rpt'), tenant_id: A.tenantId(), order_id: orderId,
-    report_no: reportNo, revision_id: revisionId, status: 'published',
-    snapshot_json: {}, published_by: A.getSession().user.id, published_at: new Date().toISOString()
+// 构建不可变报告快照：签发时冻结订单信息、机构品牌、检测结论与结果明细
+function buildSnapshot(order, revision, tenant) {
+  var LIB = require('../utils/templates-lib');
+  var R = require('./rules');
+  var answers = (revision.answers_json) || {};
+  var alerts = (revision.alerts_json) || [];
+  var tpl = LIB[order.template_id] || LIB['car-standard'];
+  var sections = [], photos = [], conclusionParts = [];
+  (tpl ? tpl.modules : []).forEach(function (m) {
+    var rows = [];
+    m.items.forEach(function (it) {
+      var ans = answers[it.n];
+      if (!ans || !ans.result || ans.result === '待检查') return;
+      rows.push({
+        n: it.n, result: ans.result,
+        threshold: ans.threshold || '',
+        note: ans.note || '',
+        color: R.resultColor(Object.assign({}, it, { answer: ans }))
+      });
+      if (ans.photos && ans.photos.length) {
+        photos.push({ n: it.n, result: ans.result, urls: ans.photos });
+      }
+    });
+    if (rows.length) sections.push({ name: m.name, items: rows });
+  });
+  alerts.forEach(function (a) { if (a && a.title) conclusionParts.push(a.title); });
+  return {
+    version: '1.0',
+    plate: order.plate || '',
+    brand_model: order.brand_model || '',
+    vehicle_kind: order.vehicle_kind,
+    package_name: order.package_name || '',
+    standard: order.standard || '',
+    template_id: order.template_id || '',
+    revision_id: revision.id,
+    content_hash: revision.content_hash || '',
+    org_name: tenant ? tenant.name : '',
+    org_logo: tenant ? (tenant.logo_url || '') : '',
+    conclusion: conclusionParts.length ? conclusionParts.join(' / ') : '未触发事故车、泡水车、火烧车提示',
+    alerts: alerts,
+    sections: sections,
+    photos: photos
   };
-  return db.from('reports').insert(report).select().single().then(function (r) {
-    if (r.error) return { data: null, error: r.error };
-    return db.from('review_records').insert({
-      id: U.uid('revw'), tenant_id: A.tenantId(), order_id: orderId, revision_id: revisionId,
-      decision: 'approved', reviewer_uid: A.getSession().user.id, target_items_json: []
-    }).select().single().then(function () {
-      return updateOrder(orderId, { status: 'PUBLISHED' }).then(function () {
-        audit('review.approved', 'order', orderId, { report: reportNo });
-        return { data: r.data, error: null };
+}
+
+function approve(orderId, revisionId, revisionNo, revisionData) {
+  var reportNo = 'RPT-' + U.orderNo();
+  var reportId = U.uid('rpt');
+  var reviewId = U.uid('revw');
+  return Promise.all([getOrder(orderId), getTenant()]).then(function (rs) {
+    if (rs[0].error || !rs[0].data) return { data: null, error: { message: '订单不存在' } };
+    var snapshotted = revisionData || getRevision(orderId, revisionNo || 1);
+    return Promise.resolve(snapshotted).then(function (rr) {
+      var revision = (rr && rr.data) || {};
+      var snapshot = buildSnapshot(rs[0].data, revision, rs[1].data);
+      return db.rpc('publish_report_atomic', {
+        p_order_id: orderId, p_revision_id: revisionId, p_snapshot: snapshot,
+        p_report_id: reportId, p_report_no: reportNo, p_review_id: reviewId
+      }).then(function (r) {
+        return { data: r.data ? { id: r.data, report_no: reportNo, snapshot_json: snapshot } : null, error: r.error };
       });
     });
   });
@@ -149,24 +193,20 @@ function publishSnapshot(reportId, snapshot) {
   return db.from('reports').update({ snapshot_json: snapshot }).eq('id', reportId).select().single().then(unwrap);
 }
 
-// 分享（高熵令牌，只存哈希）
+// 分享：令牌由服务端 CSPRNG 生成（256bit），数据库只存 SHA-256 哈希，前端仅拿到一次明文
 function makeToken() {
-  var a = U.uid('').replace(/[^a-zA-Z0-9]/g, '');
-  var b = U.uid('').replace(/[^a-zA-Z0-9]/g, '');
-  return a + b; // >128bit 熵（40+40 位字母数字）
+  // 仅用于占位展示；真实令牌一律来自 issue_report_share 服务端函数
+  return '';
 }
 
 function createShare(reportId, scope, days) {
-  var token = makeToken();
-  var hash = U.hashText(token) + U.hashText(token.split('').reverse().join(''));
-  var expires = new Date(Date.now() + (days || 30) * 86400000).toISOString();
-  return db.from('report_shares').insert({
-    id: U.uid('share'), tenant_id: A.tenantId(), report_id: reportId, token_hash: hash,
-    status: 'active', expires_at: expires, scope_json: scope || {},
-    created_by: A.getSession().user.id
-  }).select().single().then(function (r) {
-    if (!r.error) audit('report_share.created', 'report', reportId, {});
-    return { data: r.data, token: token, error: r.error };
+  return db.rpc('issue_report_share', {
+    p_report_id: reportId, p_scope: scope || {}, p_days: days || 30
+  }).then(function (r) {
+    if (r.error || (r.data && r.data.error)) {
+      return { data: null, token: null, error: r.error || { message: r.data.error } };
+    }
+    return { data: r.data, token: r.data.token, error: null };
   });
 }
 

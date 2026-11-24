@@ -74,7 +74,7 @@ Page({
       var rev = self.data.order.revision_no || 1;
       D.getRevision(self.data.orderId, rev).then(function (rr) {
         if (!rr.data) { wx.hideLoading(); U.toast('未找到检测版本'); return; }
-        return D.approve(self.data.orderId, rr.data.id).then(function (res) {
+        return D.approve(self.data.orderId, rr.data.id, rev, rr).then(function (res) {
           wx.hideLoading();
           if (res.error) { U.toast(res.error.message || '操作失败'); return; }
           U.toast('已通过并发布');

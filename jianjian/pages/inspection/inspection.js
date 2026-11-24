@@ -119,8 +119,23 @@ Page({
       count: 3, sizeType: ['compressed'], sourceType: ['album', 'camera'],
       success: function (res) {
         var item = self.data.currentSection.items[i];
-        var photos = (item.answer.photos || []).concat(res.tempFilePaths);
-        self.patchAnswer(i, { photos: photos }, function () { U.toast('照片已添加（演示本地暂存）'); });
+        var temps = res.tempFilePaths;
+        // 先本地即时展示，随后上传云存储并替换为云路径
+        var optimistic = (item.answer.photos || []).concat(temps);
+        self.patchAnswer(i, { photos: optimistic });
+        wx.showLoading({ title: '上传中' });
+        require('../../services/storage').uploadPhotos(temps, self.data.orderId, item.n).then(function (r) {
+          wx.hideLoading();
+          if (r.error && !r.paths.length) { U.toast(r.error.message || '上传失败'); return; }
+          var fresh = self.data.currentSection.items[i];
+          var current = (fresh.answer.photos || []).slice();
+          // 移除本次的临时路径，替换为云端路径
+          temps.forEach(function (t) { var idx = current.indexOf(t); if (idx >= 0) current.splice(idx, 1); });
+          current = current.concat(r.paths);
+          self.patchAnswer(i, { photos: current }, function () { self.autoSave(); });
+          if (r.errors.length) U.toast('部分照片上传失败');
+          else U.toast('照片已保存至云端');
+        });
       }
     });
   },
