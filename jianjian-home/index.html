@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>鉴见小程序 · 首页 · 高保真原型</title>
+<style>
+:root{
+  --brand-900:#172E39; --brand-800:#203B42; --primary:#376D57; --primary-deep:#264C40;
+  --accent:#D7ED9F; --canvas:#F5F7F5; --surface:#FFFFFF; --text:#23343E; --muted:#8D999C;
+  --line:#E9EDEB; --success:#64866D; --success-bg:#EAF5EF; --warning:#BD8851;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#E9EEEA;color:var(--text);font-size:14px;line-height:1.5;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px}
+
+/* 原型辅助工具条 */
+.toolbar{width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.toolbar .tt{font-size:12px;color:var(--muted)}
+.toolbar .tt b{color:var(--brand-900);font-size:13px}
+.toolbar .hint{font-size:11px;color:#9AA6A1}
+
+/* 手机外框 */
+.phone{width:390px;max-width:100%;background:var(--canvas);border-radius:44px;
+  box-shadow:0 24px 70px rgba(23,46,57,.18),0 0 0 10px #fff,0 0 0 11px var(--line);
+  overflow:hidden;position:relative;height:844px}
+
+/* 状态栏 */
+.statusbar{height:44px;background:var(--brand-800);color:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600}
+.statusbar .sb-r{display:flex;align-items:center;gap:6px;font-size:12px}
+.statusbar svg{width:16px;height:12px;fill:#fff}
+
+/* 滚动内容 */
+.scroll{height:calc(844px - 44px - 64px);overflow-y:auto;scrollbar-width:none;padding:0 0 24px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* 顶部横幅 */
+.hero{background:linear-gradient(135deg,#1B3A42 0%,#173039 58%,#142A32 100%);
+  color:#fff;padding:20px 20px 24px;position:relative;overflow:hidden}
+.orbit{position:absolute;right:-36px;top:-18px;width:188px;height:188px;pointer-events:none}
+.orbit i{position:absolute;left:50%;top:50%;border:1px solid rgba(215,237,159,.16);border-radius:50%;transform:translate(-50%,-50%)}
+.orbit i:nth-child(1){width:188px;height:188px}
+.orbit i:nth-child(2){width:134px;height:134px;border-color:rgba(215,237,159,.13)}
+.orbit i:nth-child(3){width:82px;height:82px;border-color:rgba(215,237,159,.18)}
+.orbit .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;background:rgba(215,237,159,.10);
+  border:1px solid rgba(215,237,159,.30);
+  display:flex;align-items:center;justify-content:center;color:var(--accent);font-size:16px}
+.orbit .spark{position:absolute;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.7}
+.orbit .s1{right:40px;top:24px}.orbit .s2{left:18px;bottom:42px}.orbit .s3{right:76px;bottom:26px}
+.hero-eyebrow{font-size:9px;color:rgba(255,255,255,.62);letter-spacing:1.4px;position:relative;z-index:1}
+.hero-title{font-size:19px;font-weight:600;margin-top:8px;letter-spacing:.3px;position:relative;z-index:1}
+.hero-title .sun{color:var(--accent);font-size:15px;margin-left:5px}
+.hero-sub{font-size:10px;color:rgba(255,255,255,.68);margin-top:6px;position:relative;z-index:1}
+.hero-stat{display:flex;align-items:baseline;gap:8px;margin-top:18px;position:relative;z-index:1}
+.hero-stat .n{font-size:26px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.5px}
+.hero-stat .u{font-size:11px;color:rgba(255,255,255,.80);font-weight:500}
+.hero-stat .up{font-size:9px;color:var(--accent);margin-left:2px}
+.hero-label{font-size:9px;color:rgba(255,255,255,.55);margin-top:4px;position:relative;z-index:1}
+
+/* 通用眉标/标题 */
+.sec{padding:20px 16px 0}
+.eyebrow{font-size:9px;color:#9AA6A1;letter-spacing:1.5px;font-weight:500}
+.h2{font-size:17px;font-weight:600;color:var(--brand-900);margin-top:4px}
+.h2-sub{font-size:10px;color:var(--muted);margin-top:5px;line-height:1.6}
+.sec-more{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:3px;cursor:pointer;
+  position:relative;top:-2px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-start}
+
+/* 检测入口卡 */
+.entries{display:grid;gap:12px;margin-top:14px}
+.entry{position:relative;border-radius:18px;min-height:154px;overflow:hidden;padding:16px 16px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s}
+.entry:active{transform:scale(.985)}
+.entry.car{background:linear-gradient(120deg,#F1F7EA 0%,#E8F1DF 100%);border:1px solid #DCE8D0}
+.entry.moto{background:linear-gradient(120deg,#EFF3F5 0%,#E6EDEF 100%);border:1px solid #D9E2E5}
+.entry-tag{display:inline-flex;align-items:center;gap:4px;font-size:9px;padding:4px 8px;border-radius:10px;
+  background:rgba(255,255,255,.78);color:var(--primary-deep);font-weight:600;position:relative;z-index:2}
+.entry-tag svg{width:10px;height:10px;stroke:var(--primary);fill:none;stroke-width:2}
+.entry-title{font-size:16px;font-weight:700;color:var(--brand-900);margin-top:14px;line-height:1.3;position:relative;z-index:2}
+.entry-desc{font-size:10px;color:#5E7069;margin-top:4px;position:relative;z-index:2}
+.entry-foot{font-size:10px;color:#5E7069;margin-top:22px;position:relative;z-index:2}
+.entry-arrow{position:absolute;right:14px;top:14px;width:26px;height:26px;border-radius:50%;background:#fff;
+  display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 2px 8px rgba(23,46,57,.08)}
+.entry-arrow svg{width:13px;height:13px;stroke:var(--primary-deep);fill:none;stroke-width:1.8}
+.entry-img{position:absolute;right:-8px;bottom:6px;width:66%;height:82px;object-fit:contain;
+  object-position:right bottom;z-index:1;pointer-events:none}
+.entry.moto .entry-img{width:60%;height:96px;right:0;bottom:2px}
+.entry-shade{position:absolute;inset:0;background:linear-gradient(90deg,rgba(241,247,234,.96) 0%,rgba(241,247,234,.90) 42%,rgba(241,247,234,.18) 72%,rgba(241,247,234,0) 100%);z-index:1}
+.entry.moto .entry-shade{background:linear-gradient(90deg,rgba(239,243,245,.96) 0%,rgba(239,243,245,.90) 42%,rgba(239,243,245,.18) 72%,rgba(239,243,245,0) 100%)}
+
+/* 今日工作 - 进展概览 */
+.work{margin:12px 16px 0;background:var(--surface);border:1px solid var(--line);border-radius:18px;
+  padding:15px 16px 14px}
+.work-top{display:flex;align-items:center;justify-content:space-between}
+.work-tag{font-size:9px;color:var(--success);background:var(--success-bg);padding:3px 8px;border-radius:9px;font-weight:600}
+.work-title{font-size:14px;font-weight:600;color:var(--brand-900);margin-top:10px}
+.work-line{display:flex;align-items:baseline;justify-content:space-between;margin-top:12px}
+.work-line .lb{font-size:11px;color:#54645E}
+.work-line .num{font-size:13px;font-weight:700;color:var(--brand-900)}
+.work-line .num small{font-size:10px;font-weight:500;color:var(--muted)}
+.bar{height:7px;background:#EDF1EE;border-radius:5px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;width:60%;border-radius:5px;background:linear-gradient(90deg,var(--primary),#5C9A77)}
+.work-stats{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.wstat{text-align:center}
+.wstat .v{font-size:13px;font-weight:700;color:var(--brand-900)}
+.wstat .k{font-size:9px;color:var(--muted);margin-top:3px}
+.wstat.done .v{color:var(--success)}
+.wstat.doing .v{color:#2C6E9B}
+.work-more{display:flex;align-items:center;justify-content:space-between;margin-top:12px;
+  padding:10px 12px;background:var(--success-bg);border:1px solid #D3E6DA;border-radius:10px;
+  font-size:11px;font-weight:600;color:var(--primary-deep);cursor:pointer}
+.work-more svg{width:13px;height:13px;stroke:var(--primary-deep);fill:none;stroke-width:2}
+
+/* 底部 tabbar */
+.tabbar{height:64px;background:#fff;border-top:1px solid var(--line);display:grid;
+  grid-template-columns:repeat(4,1fr);position:absolute;bottom:0;left:0;right:0}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer}
+.tab svg{width:21px;height:21px;stroke:#9AA6A1;fill:none;stroke-width:1.7}
+.tab span{font-size:10px;color:#9AA6A1}
+.tab.on svg{stroke:var(--primary)}
+.tab.on span{color:var(--primary);font-weight:600}
+
+/* Toast */
+.toast{position:absolute;left:50%;bottom:96px;transform:translateX(-50%) translateY(10px);
+  background:rgba(23,46,57,.92);color:#fff;font-size:12px;padding:10px 18px;border-radius:8px;
+  opacity:0;pointer-events:none;transition:.25s;white-space:nowrap;z-index:50}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 设计说明卡 */
+.legend{max-width:420px;width:100%;margin-top:22px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:16px 18px}
+.legend h4{font-size:13px;color:var(--brand-900);margin-bottom:10px}
+.legend ul{list-style:none;display:grid;gap:7px}
+.legend li{font-size:11px;color:#5E7069;display:flex;gap:8px;line-height:1.6}
+.legend li .k{color:var(--primary);font-weight:600;flex-shrink:0;min-width:58px}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tt"><b>鉴见</b> · 「首页」页设计原型 <span style="color:#BCC6C1">/ 390×844</span></div>
+  <div class="hint">点击各入口查看反馈</div>
+</div>
+
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="sb-r">
+      <svg viewBox="0 0 20 12"><path d="M1 9h2v3H1zM5 6h2v6H5zM9 3h2v9H9zM13 0h2v12h-2z"/></svg>
+      <svg viewBox="0 0 16 12"><path d="M8 11l7-7a10 10 0 0 0-14 0z"/></svg>
+      <svg viewBox="0 0 26 12"><rect x="0" y="1" width="21" height="10" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="2" y="3" width="15" height="6" rx="1"/><path d="M23 4v4a2 2 0 0 0 0-4z"/></svg>
+    </span>
+  </div>
+
+  <div class="scroll">
+    <!-- 顶部横幅 -->
+    <div class="hero">
+      <div class="orbit">
+        <i></i><i></i><i></i>
+        <div class="core">◔</div>
+        <span class="spark s1"></span><span class="spark s2"></span><span class="spark s3"></span>
+      </div>
+      <div class="hero-eyebrow">WEDNESDAY, NOVEMBER 25, 2026</div>
+      <div class="hero-title">早上好，林师傅<span class="sun">✳</span></div>
+      <div class="hero-sub">记录每一处细节，变成值得信赖的判断。</div>
+      <div class="hero-stat">
+        <span class="n">28</span><span class="u">份报告</span><span class="up">↑ 16.8%</span>
+      </div>
+      <div class="hero-label">本月已完成 · 较上月</div>
+    </div>
+
+    <!-- 开始一次检测 -->
+    <div class="sec">
+      <div class="sec-head">
+        <div>
+          <div class="eyebrow">START INSPECTION</div>
+          <div class="h2">开始一次检测</div>
+          <div class="h2-sub">选择车辆类型与检测场景，创建专属检测任务。</div>
+        </div>
+      </div>
+
+      <div class="entries">
+        <div class="entry car" onclick="toast('乘用车检测')">
+          <div class="entry-shade"></div>
+          <img class="entry-img" src="assets/car_alpha.png" alt="乘用车" />
+          <div class="entry-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></div>
+          <span class="entry-tag"><svg viewBox="0 0 24 24"><path d="M3 13l2-5h14l2 5M3 13h18v5H3zM7 18v2M17 18v2"/></svg>乘用车检测</span>
+          <div class="entry-title">每一程，都有依据。</div>
+          <div class="entry-desc">二手车 · 新车 · 新能源</div>
+          <div class="entry-foot">国标 / 团标 · 灵活选择</div>
+        </div>
+
+        <div class="entry moto" onclick="toast('摩托车检测')">
+          <div class="entry-shade"></div>
+          <img class="entry-img" src="assets/moto_alpha.png" alt="摩托车" />
+          <div class="entry-arrow"><svg viewBox="0 0 24 24"><path d="M7 17L17 7M8 7h9v9"/></svg></div>
+          <span class="entry-tag"><svg viewBox="0 0 24 24"><circle cx="5.5" cy="17" r="3.5"/><circle cx="18.5" cy="17" r="3.5"/><path d="M5.5 17l4-8h5l4 8M9 9l4 8"/></svg>摩托车检测</span>
+          <div class="entry-title">探索车况的另一面。</div>
+          <div class="entry-desc">二手车 · 新车</div>
+          <div class="entry-foot">按车型配置检查项</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 今日工作 - 进展概览 -->
+    <div class="work">
+      <div class="work-top">
+        <div>
+          <div class="eyebrow">TODAY'S FOCUS</div>
+          <div class="work-title">今日工作 · 进展概览</div>
+        </div>
+        <span class="work-tag">进行中</span>
+      </div>
+      <div class="work-line">
+        <span class="lb">今天的检测任务</span>
+        <span class="num">3 <small>/ 5 单</small></span>
+      </div>
+      <div class="bar"><i></i></div>
+      <div class="work-stats">
+        <div class="wstat done"><div class="v">1 单</div><div class="k">已完成</div></div>
+        <div class="wstat doing"><div class="v">1 单</div><div class="k">进行中</div></div>
+        <div class="wstat"><div class="v">1 单</div><div class="k">待开始</div></div>
+      </div>
+      <div class="work-more" onclick="toast('还有 1 份报告待审核')">
+        <span>还有 1 份报告待审核</span>
+        <svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- 底部 tabbar -->
+  <div class="tabbar">
+    <div class="tab on" onclick="toast('首页')">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg><span>首页</span>
+    </div>
+    <div class="tab" onclick="toast('订单')">
+      <svg viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></svg><span>订单</span>
+    </div>
+    <div class="tab" onclick="toast('审核')">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4M8 11l2 2 4-4"/></svg><span>审核</span>
+    </div>
+    <div class="tab" onclick="toast('我的')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>我的</span>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<div class="legend">
+  <h4>设计要点（对照参考图）</h4>
+  <ul>
+    <li><span class="k">顶部横幅</span>深青绿通栏：日期眉标 +「早上好，林师傅」+ 一句主张 + 本月 28 份报告与 ↑16.8%，右侧同心圆光晕装饰。</li>
+    <li><span class="k">检测入口</span>乘用车/摩托车两张大卡改为竖向堆叠（窄屏），保留眉标、标题、说明与外跳箭头。</li>
+    <li><span class="k">车图</span>黑框里的简笔车图换成逼真银灰轿车 / 黑银跑车实拍图，配浅绿/浅灰蓝卡片底色，右侧渐隐融入文字区。</li>
+    <li><span class="k">删除项</span>按反馈移除「车辆信息查询」「检测项配置」「最近检测订单」三块，首页聚焦开始检测与今日进展。</li>
+    <li><span class="k">今日工作</span>保留进展概览卡：3/5 单进度条、已完成/进行中/待开始三态、待审核入口。</li>
+    <li><span class="k">无障碍</span>文字+颜色双通道表达状态，线性 SVG 图标统一，卡片触控区域充足。</li>
+  </ul>
+</div>
+
+<script>
+  var toastTimer = null;
+  function toast(msg) {
+    var el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 1400);
+  }
+  if (/[?&]scroll=bottom/.test(location.search)) {
+    document.querySelector('.scroll').scrollTop = 2000;
+  }
+</script>
+</body>
+</html>

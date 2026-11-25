@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>鉴见小程序 · 审核 · 高保真原型</title>
+<style>
+:root{
+  --brand-900:#172E39; --brand-800:#203B42; --primary:#376D57; --primary-deep:#264C40;
+  --accent:#D7ED9F; --canvas:#F5F7F5; --surface:#FFFFFF; --text:#23343E; --muted:#8D999C;
+  --line:#E9EDEB; --success:#64866D; --success-bg:#EAF5EF; --warning:#BD8851;
+  --st-wait:#B9833F; --st-wait-bg:#FBF2E4;
+  --st-doing:#4678A0; --st-doing-bg:#EAF2F8;
+  --st-review:#7566A6; --st-review-bg:#F0EDF8;
+  --st-fix:#B05E58; --st-fix-bg:#FAEDEC;
+  --st-done:#5B8266; --st-done-bg:#EAF4EE;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+.hidden{display:none !important}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#E9EEEA;color:var(--text);font-size:14px;line-height:1.5;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px}
+
+/* 原型辅助工具条 */
+.toolbar{width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.toolbar .tt{font-size:12px;color:var(--muted)}
+.toolbar .tt b{color:var(--brand-900);font-size:13px}
+.toolbar .seg{display:flex;gap:4px;background:var(--canvas);border-radius:9px;padding:3px}
+.toolbar .seg span{font-size:11px;color:var(--muted);padding:5px 9px;border-radius:7px;cursor:pointer}
+.toolbar .seg span.on{background:#fff;color:var(--primary);font-weight:600;box-shadow:0 1px 3px rgba(23,46,57,.08)}
+
+/* 手机外框 */
+.phone{width:390px;max-width:100%;background:var(--canvas);border-radius:44px;
+  box-shadow:0 24px 70px rgba(23,46,57,.18),0 0 0 10px #fff,0 0 0 11px var(--line);
+  overflow:hidden;position:relative;height:844px}
+
+/* 状态栏 */
+.statusbar{height:44px;background:var(--brand-800);color:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600}
+.statusbar .sb-r{display:flex;align-items:center;gap:6px;font-size:12px}
+.statusbar svg{width:16px;height:12px;fill:#fff}
+
+/* 滚动内容 */
+.scroll{height:calc(844px - 44px - 64px);overflow-y:auto;scrollbar-width:none;padding:0 0 20px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* 顶部横幅 */
+.hero{background:linear-gradient(135deg,#1B3A42 0%,#173039 58%,#142A32 100%);
+  color:#fff;padding:20px 20px 22px;position:relative;overflow:hidden}
+.orbit{position:absolute;right:-30px;top:-24px;width:180px;height:180px;pointer-events:none}
+.orbit i{position:absolute;left:50%;top:50%;border:1px solid rgba(215,237,159,.16);border-radius:50%;transform:translate(-50%,-50%)}
+.orbit i:nth-child(1){width:180px;height:180px}
+.orbit i:nth-child(2){width:128px;height:128px;border-color:rgba(215,237,159,.13)}
+.orbit i:nth-child(3){width:78px;height:78px;border-color:rgba(215,237,159,.18)}
+.orbit .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;background:rgba(215,237,159,.10);
+  border:1px solid rgba(215,237,159,.30);display:flex;align-items:center;justify-content:center;
+  color:var(--accent)}
+.orbit .core svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:1.8}
+.hero-eyebrow{font-size:9px;color:rgba(255,255,255,.62);letter-spacing:1.4px;position:relative;z-index:1}
+.hero-title{font-size:20px;font-weight:600;margin-top:8px;letter-spacing:.3px;position:relative;z-index:1}
+.hero-sub{font-size:10px;color:rgba(255,255,255,.68);margin-top:6px;position:relative;z-index:1;max-width:230px;line-height:1.6}
+.hero-stats{display:flex;gap:22px;margin-top:18px;position:relative;z-index:1}
+.hero-stat .n{font-size:22px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.5px}
+.hero-stat .u{font-size:10px;color:rgba(255,255,255,.78);margin-left:3px}
+.hero-stat .l{font-size:9px;color:rgba(255,255,255,.55);margin-top:4px}
+
+/* 筛选区：状态大按钮（与检测订单页一致） */
+.filterbar{position:sticky;top:0;z-index:5;background:var(--canvas);padding:12px 16px 10px;
+  border-bottom:1px solid var(--line)}
+.state-btn{width:100%;display:flex;align-items:center;gap:9px;background:var(--surface);
+  border:1px solid var(--line);border-radius:11px;padding:10px 13px;min-height:46px;cursor:pointer;
+  font-family:inherit;text-align:left}
+.state-btn .sb-label{font-size:12px;color:var(--muted)}
+.state-btn .sb-val{font-size:14px;font-weight:600;color:var(--brand-900);flex:1}
+.state-btn .sb-cnt{font-size:11px;color:var(--muted);background:var(--canvas);padding:2px 8px;border-radius:9px}
+.state-btn .sb-arw{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .2s;flex-shrink:0}
+.state-btn.open .sb-arw{transform:rotate(180deg)}
+
+/* 状态弹层（底部面板） */
+.sheet-mask{position:absolute;inset:0;background:rgba(23,46,57,.44);z-index:30;
+  display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
+.sheet-mask.show{opacity:1;pointer-events:auto}
+.sheet{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:6px 0 22px;
+  transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);max-height:80%;overflow-y:auto}
+.sheet-mask.show .sheet{transform:translateY(0)}
+.sheet-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;
+  font-size:14px;font-weight:600;color:var(--brand-900);border-bottom:1px solid var(--line)}
+.sheet-hd .done{font-size:13px;color:var(--primary);font-weight:600;cursor:pointer;padding:4px 2px}
+.sheet-opts{padding:4px 0}
+.sheet-opt{display:flex;align-items:center;gap:12px;padding:12px 18px;min-height:50px;cursor:pointer}
+.sheet-opt:active{background:var(--canvas)}
+.sheet-opt .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sheet-opt .nm{flex:1;font-size:14px;color:var(--text)}
+.sheet-opt .cnt{font-size:12px;color:var(--muted)}
+.sheet-opt .ck{width:17px;height:17px;stroke:var(--primary);fill:none;stroke-width:2.4;opacity:0;flex-shrink:0}
+.sheet-opt.on .nm{color:var(--primary);font-weight:600}
+.sheet-opt.on .ck{opacity:1}
+
+/* 拨动提示 */
+.swipe-hint{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px 2px;
+  font-size:10px;color:#9AA6A1;user-select:none}
+.swipe-hint .arw{font-size:16px;color:var(--primary);line-height:1;opacity:.7;animation:nudge 1.8s ease-in-out infinite}
+.swipe-hint .arw.r{animation-delay:.9s}
+.swipe-hint b{color:var(--primary);font-weight:600}
+@keyframes nudge{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(3px);opacity:.9}}
+.swipe-hint .arw.l{animation-name:nudgeL}
+@keyframes nudgeL{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(-3px);opacity:.9}}
+
+/* 列表拨动切换动画 */
+.list.slide-in .card{animation:cardIn .3s cubic-bezier(.2,.8,.2,1) both}
+.list.slide-in .card:nth-child(2){animation-delay:.04s}
+.list.slide-in .card:nth-child(3){animation-delay:.08s}
+.list.slide-in .card:nth-child(4){animation-delay:.12s}
+@keyframes cardIn{from{opacity:0;transform:translateX(var(--dir,18px))}to{opacity:1;transform:none}}
+.list{transition:opacity .12s}
+
+/* 区块标题 */
+.sec{padding:18px 16px 8px;display:flex;align-items:center;justify-content:space-between}
+.sec .st{font-size:14px;font-weight:600;color:var(--brand-900);display:flex;align-items:baseline;gap:6px}
+.sec .st .en{font-size:8px;color:var(--muted);letter-spacing:1.2px;font-weight:400}
+.sec .sm{font-size:10px;color:var(--muted)}
+
+/* 审核列表 */
+.list{padding:0 16px;display:grid;gap:10px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:12px 13px 11px;
+  cursor:pointer;transition:transform .15s,box-shadow .15s}
+.card:active{transform:scale(.99);box-shadow:0 4px 14px rgba(23,46,57,.08)}
+.card-top{display:flex;align-items:center;gap:10px}
+.car-ico{width:52px;height:42px;border-radius:10px;background:var(--canvas);display:flex;align-items:center;
+  justify-content:center;flex-shrink:0;overflow:hidden}
+.car-ico img{width:100%;height:100%;object-fit:contain}
+.card-name{flex:1;min-width:0;font-size:13px;font-weight:600;color:var(--brand-900);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.st{font-size:10px;font-weight:500;padding:4px 9px;border-radius:999px;white-space:nowrap;flex-shrink:0}
+.st.wait{color:var(--st-wait);background:var(--st-wait-bg)}
+.st.done{color:var(--st-done);background:var(--st-done-bg)}
+.st.fix{color:var(--st-fix);background:var(--st-fix-bg)}
+.st.review{color:var(--st-review);background:var(--st-review-bg)}
+.st.published{color:var(--st-doing);background:var(--st-doing-bg)}
+.card-meta{margin:9px 0 0 62px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-meta .l{font-size:10px;color:var(--muted);line-height:1.7}
+.card-meta .l .no{font-family:ui-monospace,monospace;font-size:10px;color:#7A8885}
+.card-meta .l .sep{color:#C6CFCC;margin:0 5px}
+.card-foot{margin:9px 0 0 62px;padding-top:9px;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between}
+.card-foot .tm{font-size:10px;color:var(--muted)}
+.card-foot .act{font-size:11px;color:var(--primary);font-weight:600;display:flex;align-items:center;gap:2px}
+.card-foot .act svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2}
+.card .chev{position:absolute;right:12px;top:50%;transform:translateY(-50%);width:14px;height:14px;
+  stroke:#C2CCC8;fill:none;stroke-width:2}
+.return-note{margin:8px 0 0 62px;font-size:10px;color:var(--st-fix);background:var(--st-fix-bg);
+  padding:7px 9px;border-radius:8px;line-height:1.5}
+
+/* 空状态 */
+.empty{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty .eic{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.empty .eic svg{width:26px;height:26px;stroke:var(--primary);fill:none;stroke-width:1.5}
+.empty .et{font-size:13px;color:var(--text);font-weight:600}
+.empty .es{font-size:10px;margin-top:6px}
+
+/* 底部说明 */
+.foot{margin:18px 16px 6px;font-size:9px;color:var(--muted);line-height:1.7;text-align:center}
+.foot .fl{display:flex;align-items:center;justify-content:center;gap:5px;margin-bottom:5px}
+.foot .fl svg{width:12px;height:12px;stroke:var(--muted);fill:none;stroke-width:1.6}
+
+/* tabbar */
+.tabbar{height:64px;background:#fff;border-top:1px solid var(--line);display:flex;align-items:center;
+  justify-content:space-around;padding-bottom:6px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;flex:1;cursor:pointer;color:#8D999C}
+.tab.on{color:var(--primary)}
+.tab svg{width:21px;height:21px;stroke:currentColor;fill:none;stroke-width:1.7}
+.tab .tl{font-size:9px;font-weight:500}
+.tab.on .tl{font-weight:600}
+
+/* Toast */
+.toast{position:absolute;left:50%;bottom:88px;transform:translateX(-50%) translateY(10px);
+  background:rgba(23,46,57,.92);color:#fff;font-size:12px;padding:10px 16px;border-radius:10px;
+  opacity:0;pointer-events:none;transition:all .22s;z-index:50;white-space:nowrap;max-width:80%;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* 设计说明卡 */
+.legend{width:100%;max-width:420px;margin-top:22px;background:#fff;border:1px solid var(--line);
+  border-radius:14px;padding:16px 18px}
+.legend h4{font-size:13px;color:var(--brand-900);margin-bottom:10px}
+.legend ul{list-style:none;display:grid;gap:8px}
+.legend li{font-size:11px;color:#5B6B66;line-height:1.6;padding-left:2px}
+.legend li .k{display:inline-block;font-size:10px;color:var(--primary);background:var(--success-bg);
+  padding:1px 7px;border-radius:6px;margin-right:6px;font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tt">鉴见 · 审核页 <b>高保真原型</b></div>
+  <div class="seg">
+    <span id="rbInspector" class="on">检测师</span>
+    <span id="rbAdmin">机构管理员</span>
+  </div>
+</div>
+
+<div class="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="sb-r">
+      <svg viewBox="0 0 24 18"><path d="M2 14h3v4H2zM8 10h3v8H8zM14 6h3v12h-3zM20 2h3v16h-3z"/></svg>
+      <svg viewBox="0 0 24 18"><path d="M12 15l7-7a10 10 0 0 0-14 0z"/></svg>
+      <svg viewBox="0 0 28 14"><rect x="1" y="3" width="22" height="8" rx="2" fill="none" stroke="#fff" stroke-width="1.5"/><rect x="3" y="5" width="16" height="4" rx="1"/><path d="M25 6v2a2 2 0 0 0 0-2z"/></svg>
+    </span>
+  </div>
+
+  <div class="scroll" id="scroll">
+    <!-- 顶部横幅 -->
+    <div class="hero">
+      <div class="orbit"><i></i><i></i><i></i>
+        <div class="core"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>
+      </div>
+      <div class="hero-eyebrow" id="heroEyebrow">INSPECTION PROGRESS</div>
+      <div class="hero-title" id="heroTitle">审核进度</div>
+      <div class="hero-sub" id="heroSub">查看本人提交的报告审核状态和处理结果。</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><span class="n" id="hs1">1</span><span class="u">份</span><div class="l">审核中</div></div>
+        <div class="hero-stat"><span class="n" id="hs2">1</span><span class="u">份</span><div class="l">已完成</div></div>
+        <div class="hero-stat"><span class="n" id="hs3">1</span><span class="u">份</span><div class="l">已发布</div></div>
+      </div>
+    </div>
+
+    <!-- 筛选：状态大按钮（与检测订单页一致） -->
+    <div class="filterbar">
+      <div class="state-btn" id="stateBtn" onclick="openSheet()">
+        <span class="sb-label">状态</span>
+        <span class="sb-val" id="stateVal">全部</span>
+        <span class="sb-cnt" id="stateCnt">3 单</span>
+        <svg class="sb-arw" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- 拨动提示 -->
+    <div class="swipe-hint">
+      <span class="arw l">‹</span>
+      <span>点上方状态选择 · 或左右拨动列表 · 当前 <b id="swipePos">全部</b></span>
+      <span class="arw r">›</span>
+    </div>
+
+    <!-- 区块标题 -->
+    <div class="sec">
+      <div class="st" id="listTitle">报告审核列表 <span class="en">REVIEW</span></div>
+      <div class="sm" id="listCount">共 3 条</div>
+    </div>
+
+    <!-- 审核列表 -->
+    <div class="list" id="list" ontouchstart="swipeStart(event)" ontouchend="swipeEnd(event)" onmousedown="swipeStart(event)" onmouseup="swipeEnd(event)"></div>
+
+    <!-- 底部说明 -->
+    <div class="foot">
+      <div class="fl"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>审核说明</div>
+      <div id="footText">检测师提交报告后由机构管理员审核；审核结果将实时同步到你本人提交的报告中。</div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <!-- 状态选择弹层 -->
+  <div class="sheet-mask" id="sheetMask" onclick="closeSheet(event)">
+    <div class="sheet" onclick="stopProp(event)">
+      <div class="sheet-hd">
+        <span>筛选状态</span>
+        <span class="done" onclick="closeSheet(event)">完成</span>
+      </div>
+      <div class="sheet-opts" id="sheetOpts"></div>
+    </div>
+  </div>
+
+  <!-- tabbar -->
+  <div class="tabbar">
+    <div class="tab" onclick="toast('首页')">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+      <span class="tl">首页</span>
+    </div>
+    <div class="tab" onclick="toast('订单')">
+      <svg viewBox="0 0 24 24"><path d="M6 3h12a2 2 0 0 1 2 2v16l-3-2-3 2-3-2-3 2-2-2V5a2 2 0 0 1 2-2zM9 8h6M9 12h6"/></svg>
+      <span class="tl">订单</span>
+    </div>
+    <div class="tab on" onclick="toast('审核')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      <span class="tl">审核</span>
+    </div>
+    <div class="tab" onclick="toast('我的')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+      <span class="tl">我的</span>
+    </div>
+  </div>
+</div>
+
+<div class="legend">
+  <h4>设计要点（参考图 → 小程序）</h4>
+  <ul>
+    <li><span class="k">顶部横幅</span>桌面标题区收敛为深青绿横幅：眉标 + 审核进度 + 副标题 + 同心圆装饰；三项审核数据直接放横幅，一眼可见。</li>
+    <li><span class="k">状态切换</span>与检测订单页一致：顶部状态大按钮（当前状态+数量+箭头）点击弹出底部面板，6 状态每项带彩点+数量+勾选；也可在列表上左右拨动切换，带滑入动画。</li>
+    <li><span class="k">列表</span>桌面三列表格收敛为卡片：逼真车图 + 车型 + 状态徽章 + 编号 + 套餐 + 时间 + 下一步动作；切换状态即切换对应列表。</li>
+    <li><span class="k">状态色</span>待审核=琥珀、审核中=紫、已发布=蓝、已完成=绿、待修改=玫红，均带文字标签，不单靠颜色传达。</li>
+    <li><span class="k">双角色</span>检测师看「审核进度」；机构管理员为「审核中心」，待审核卡操作显示「去审核」。</li>
+    <li><span class="k">一致性</span>沿用鉴见深青绿横幅与全套 token，与首页/订单/我的视觉语言统一。</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  // 审核列表数据（每项 st 对应 FILTERS 的 sts）
+  var REVIEWS = [
+    { name: '丰田 RAV4 荣放', kind: 'car',  no: 'JJC202611240018', pkg: '基础检测 · 国标', st: 'wait',  stLabel: '待审核', time: '今天 10:24', ret: '' },
+    { name: '大众 速腾 L',     kind: 'car',  no: 'JJC202611230011', pkg: '四项检测 · 国标', st: 'done',  stLabel: '已完成', time: '昨天 16:40', ret: '' },
+    { name: '宝马 3 系',       kind: 'car',  no: 'JJC202611220009', pkg: '基础检测 · 国标', st: 'fix',   stLabel: '待修改', time: '昨天 14:02', ret: '右前翼子板漆面照片需补充清晰近照。' }
+  ];
+
+  // 筛选配置：与检测订单页一致，后续加审核列表只需在 FILTERS / ST2FILTER / ST_DOT 增项
+  var FILTERS = ['全部', '待审核', '审核中', '待修改', '已完成', '已发布'];
+  var ST2FILTER = { wait: '待审核', review: '审核中', fix: '待修改', done: '已完成', published: '已发布' };
+  var ST_DOT = { '全部': 'var(--primary)', '待审核': 'var(--st-wait)', '审核中': 'var(--st-review)',
+    '待修改': 'var(--st-fix)', '已完成': 'var(--st-done)', '已发布': 'var(--st-doing)' };
+  var current = '全部';
+
+  var state = { role: 'inspector' };
+
+  function img(kind) { return kind === 'moto' ? 'assets/moto_alpha.png' : 'assets/car_alpha.png'; }
+
+  function countOf(f) {
+    return f === '全部' ? REVIEWS.length : REVIEWS.filter(function (o) { return ST2FILTER[o.st] === f; }).length;
+  }
+
+  function visibleList() {
+    return REVIEWS.filter(function (o) { return current === '全部' || ST2FILTER[o.st] === current; });
+  }
+
+  // 状态大按钮：当前状态 + 数量
+  function renderStateBtn() {
+    var v = document.getElementById('stateVal'); if (v) v.textContent = current;
+    var c = document.getElementById('stateCnt'); if (c) c.textContent = countOf(current) + ' 单';
+  }
+
+  // 弹层选项：各状态 + 数量 + 勾选
+  function renderSheetOpts() {
+    var box = document.getElementById('sheetOpts'); if (!box) return;
+    var html = '';
+    for (var i = 0; i < FILTERS.length; i++) {
+      var f = FILTERS[i];
+      html += '<div class="sheet-opt' + (f === current ? ' on' : '') + '" data-f="' + f + '" onclick="pickFilter(this)">'
+        + '<span class="dot" style="background:' + ST_DOT[f] + '"></span>'
+        + '<span class="nm">' + esc(f) + '</span>'
+        + '<span class="cnt">' + countOf(f) + ' 单</span>'
+        + '<svg class="ck" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>'
+        + '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function actLabel(o) {
+    if (state.role === 'admin' && o.st === 'wait') return '去审核';
+    if (o.st === 'fix') return '重新提交';
+    if (o.st === 'wait') return '查看进度';
+    return '查看详情';
+  }
+
+  function renderList() {
+    var box = document.getElementById('list');
+    var arr = visibleList();
+    document.getElementById('listCount').textContent = '共 ' + arr.length + ' 条';
+    if (!arr.length) {
+      box.innerHTML = '<div class="empty"><div class="eic"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div>'
+        + '<div class="et">暂无相关报告</div><div class="es">该状态下没有可显示的审核记录</div></div>';
+      return;
+    }
+    var html = '';
+    for (var i = 0; i < arr.length; i++) {
+      var o = arr[i];
+      html += '<div class="card" style="position:relative" onclick="openReview(\'' + esc(o.name) + '\')">'
+        + '<div class="card-top">'
+        + '<div class="car-ico"><img src="' + img(o.kind) + '" alt="" /></div>'
+        + '<div class="card-name">' + esc(o.name) + '</div>'
+        + '<span class="st ' + o.st + '">' + esc(o.stLabel) + '</span>'
+        + '</div>'
+        + '<div class="card-meta"><div class="l">'
+        + '<span class="no">' + esc(o.no) + '</span><span class="sep">·</span>' + esc(o.pkg)
+        + '</div></div>';
+      if (o.ret) html += '<div class="return-note">退回意见：' + esc(o.ret) + '</div>';
+      html += '<div class="card-foot"><span class="tm">' + esc(o.time) + '</span>'
+        + '<span class="act">' + actLabel(o) + '<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></span>'
+        + '</div></div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function applyRole() {
+    var admin = state.role === 'admin';
+    document.getElementById('rbInspector').classList.toggle('on', !admin);
+    document.getElementById('rbAdmin').classList.toggle('on', admin);
+    document.getElementById('heroEyebrow').textContent = admin ? 'REVIEW CENTER' : 'INSPECTION PROGRESS';
+    document.getElementById('heroTitle').textContent = admin ? '审核中心' : '审核进度';
+    document.getElementById('heroSub').textContent = admin
+      ? '审阅待审核检测版本，通过或附意见退回。'
+      : '查看本人提交的报告审核状态和处理结果。';
+    document.getElementById('listTitle').firstChild.nodeValue = admin ? '待处理报告 ' : '报告审核列表 ';
+    document.getElementById('footText').textContent = admin
+      ? '机构管理员可对待审核版本执行通过、退回或发布操作；处理结果会实时同步给对应检测师。'
+      : '检测师提交报告后由机构管理员审核；审核结果将实时同步到你本人提交的报告中。';
+    renderStateBtn();
+    renderList();
+  }
+
+  window.openSheet = function () {
+    renderSheetOpts();
+    var mask = document.getElementById('sheetMask'); if (mask) mask.classList.add('show');
+    var btn = document.getElementById('stateBtn'); if (btn) btn.classList.add('open');
+  };
+  window.closeSheet = function (e) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    var mask = document.getElementById('sheetMask'); if (mask) mask.classList.remove('show');
+    var btn = document.getElementById('stateBtn'); if (btn) btn.classList.remove('open');
+  };
+  window.stopProp = function (e) { if (e && e.stopPropagation) e.stopPropagation(); };
+
+  function applyFilter(f, dir) {
+    if (f === current) { closeSheet(); return; }
+    current = f;
+    renderStateBtn(); renderList();
+    var pos = document.getElementById('swipePos'); if (pos) pos.textContent = f;
+    var listEl = document.getElementById('list');
+    if (listEl) {
+      listEl.style.setProperty('--dir', dir === 'prev' ? '-18px' : '18px');
+      listEl.classList.remove('slide-in');
+      void listEl.offsetWidth;
+      listEl.classList.add('slide-in');
+    }
+  }
+
+  window.pickFilter = function (el) {
+    var f = el.getAttribute('data-f');
+    closeSheet();
+    if (f === current) return;
+    var oldIdx = FILTERS.indexOf(current), newIdx = FILTERS.indexOf(f);
+    applyFilter(f, newIdx < oldIdx ? 'prev' : 'next');
+    toast('状态：' + current);
+  };
+
+  window.openReview = function (name) { if (!dragMoved) toast('打开：' + name); };
+
+  // 左右拨动切换状态（与订单页一致：左滑下一个，右滑上一个）
+  var sx = 0, sy = 0, dragging = false, dragMoved = false;
+  window.swipeStart = function (e) {
+    var p = (e.touches && e.touches[0]) ? e.touches[0] : e;
+    sx = p.clientX; sy = p.clientY; dragging = true; dragMoved = false;
+  };
+  window.swipeEnd = function (e) {
+    if (!dragging) return;
+    dragging = false;
+    var p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : e;
+    var dx = p.clientX - sx, dy = p.clientY - sy;
+    if (Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+    dragMoved = true;
+    var idx = FILTERS.indexOf(current);
+    var next = dx < 0 ? Math.min(idx + 1, FILTERS.length - 1) : Math.max(idx - 1, 0);
+    if (next === idx) { toast(dx < 0 ? '已是最后一个状态' : '已是第一个状态'); return; }
+    applyFilter(FILTERS[next], dx < 0 ? 'next' : 'prev');
+    toast('状态：' + current);
+    setTimeout(function () { dragMoved = false; }, 60);
+  };
+
+  var toastTimer;
+  window.toast = function (msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove('show'); }, 1600);
+  };
+
+  document.getElementById('rbInspector').onclick = function () {
+    state.role = 'inspector'; applyRole(); toast('已切换：检测师');
+  };
+  document.getElementById('rbAdmin').onclick = function () {
+    state.role = 'admin'; applyRole(); toast('已切换：机构管理员');
+  };
+
+  // 初始渲染
+  applyRole();
+
+  // URL 参数（须在事件绑定与初始渲染之后）
+  var qs = location.search;
+  if (/[?&]role=admin/.test(qs)) {
+    document.getElementById('rbAdmin').click();
+  }
+  var fm = qs.match(/[?&]filter=([^&]+)/);
+  if (fm) {
+    var target = decodeURIComponent(fm[1]);
+    if (FILTERS.indexOf(target) > -1) {
+      current = target; renderStateBtn(); renderList();
+      var sp = document.getElementById('swipePos'); if (sp) sp.textContent = target;
+    }
+  }
+  if (/[?&]scroll=bottom/.test(qs)) {
+    document.getElementById('scroll').scrollTop = 2000;
+  }
+})();
+</script>
+</body>
+</html>

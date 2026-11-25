@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>鉴见小程序 · 检测订单 · 高保真原型</title>
+<style>
+:root{
+  --brand-900:#172E39; --brand-800:#203B42; --primary:#376D57; --primary-deep:#264C40;
+  --accent:#D7ED9F; --canvas:#F5F7F5; --surface:#FFFFFF; --text:#23343E; --muted:#8D999C;
+  --line:#E9EDEB; --success:#64866D; --success-bg:#EAF5EF; --warning:#BD8851;
+  --st-wait:#B9833F; --st-wait-bg:#FBF2E4;
+  --st-doing:#4678A0; --st-doing-bg:#EAF2F8;
+  --st-review:#7566A6; --st-review-bg:#F0EDF8;
+  --st-fix:#B05E58; --st-fix-bg:#FAEDEC;
+  --st-done:#5B8266; --st-done-bg:#EAF4EE;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:#E9EEEA;color:var(--text);font-size:14px;line-height:1.5;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:24px 16px 48px}
+
+/* 原型辅助工具条 */
+.toolbar{width:100%;max-width:420px;display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:16px;background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.toolbar .tt{font-size:12px;color:var(--muted)}
+.toolbar .tt b{color:var(--brand-900);font-size:13px}
+.toolbar .hint{font-size:11px;color:#9AA6A1}
+
+/* 手机外框 */
+.phone{width:390px;max-width:100%;background:var(--canvas);border-radius:44px;
+  box-shadow:0 24px 70px rgba(23,46,57,.18),0 0 0 10px #fff,0 0 0 11px var(--line);
+  overflow:hidden;position:relative;height:844px}
+
+/* 状态栏 */
+.statusbar{height:44px;background:var(--brand-800);color:#fff;display:flex;align-items:center;
+  justify-content:space-between;padding:0 26px;font-size:13px;font-weight:600}
+.statusbar .sb-r{display:flex;align-items:center;gap:6px;font-size:12px}
+.statusbar svg{width:16px;height:12px;fill:#fff}
+
+/* 滚动内容 */
+.scroll{height:calc(844px - 44px - 64px);overflow-y:auto;scrollbar-width:none;padding:0 0 20px}
+.scroll::-webkit-scrollbar{display:none}
+
+/* 顶部横幅 */
+.hero{background:linear-gradient(135deg,#1B3A42 0%,#173039 58%,#142A32 100%);
+  color:#fff;padding:20px 20px 22px;position:relative;overflow:hidden}
+.orbit{position:absolute;right:-30px;top:-24px;width:180px;height:180px;pointer-events:none}
+.orbit i{position:absolute;left:50%;top:50%;border:1px solid rgba(215,237,159,.16);border-radius:50%;transform:translate(-50%,-50%)}
+.orbit i:nth-child(1){width:180px;height:180px}
+.orbit i:nth-child(2){width:128px;height:128px;border-color:rgba(215,237,159,.13)}
+.orbit i:nth-child(3){width:78px;height:78px;border-color:rgba(215,237,159,.18)}
+.orbit .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:38px;height:38px;border-radius:50%;background:rgba(215,237,159,.10);
+  border:1px solid rgba(215,237,159,.30);display:flex;align-items:center;justify-content:center;
+  color:var(--accent)}
+.orbit .core svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:1.8}
+.hero-eyebrow{font-size:9px;color:rgba(255,255,255,.62);letter-spacing:1.4px;position:relative;z-index:1}
+.hero-title{font-size:20px;font-weight:600;margin-top:8px;letter-spacing:.3px;position:relative;z-index:1}
+.hero-sub{font-size:10px;color:rgba(255,255,255,.68);margin-top:6px;position:relative;z-index:1;max-width:230px;line-height:1.6}
+.hero-stats{display:flex;gap:22px;margin-top:18px;position:relative;z-index:1}
+.hero-stat .n{font-size:22px;font-weight:700;color:var(--accent);line-height:1;letter-spacing:-.5px}
+.hero-stat .u{font-size:10px;color:rgba(255,255,255,.78);margin-left:3px}
+.hero-stat .l{font-size:9px;color:rgba(255,255,255,.55);margin-top:4px}
+
+/* 筛选区：大按钮 */
+.filterbar{position:sticky;top:0;z-index:5;background:var(--canvas);padding:12px 16px 10px;
+  border-bottom:1px solid var(--line)}
+.state-btn{width:100%;display:flex;align-items:center;gap:9px;background:var(--surface);
+  border:1px solid var(--line);border-radius:11px;padding:10px 13px;min-height:46px;cursor:pointer;
+  font-family:inherit;text-align:left}
+.state-btn .sb-label{font-size:12px;color:var(--muted)}
+.state-btn .sb-val{font-size:14px;font-weight:600;color:var(--brand-900);flex:1}
+.state-btn .sb-cnt{font-size:11px;color:var(--muted);background:var(--canvas);padding:2px 8px;border-radius:9px}
+.state-btn .sb-arw{width:14px;height:14px;stroke:var(--muted);fill:none;stroke-width:2;transition:transform .2s;flex-shrink:0}
+.state-btn.open .sb-arw{transform:rotate(180deg)}
+
+/* 状态弹层（底部面板） */
+.sheet-mask{position:absolute;inset:0;background:rgba(23,46,57,.44);z-index:30;
+  display:flex;align-items:flex-end;opacity:0;pointer-events:none;transition:opacity .22s}
+.sheet-mask.show{opacity:1;pointer-events:auto}
+.sheet{width:100%;background:var(--surface);border-radius:20px 20px 0 0;padding:6px 0 22px;
+  transform:translateY(100%);transition:transform .26s cubic-bezier(.2,.8,.2,1);max-height:80%;overflow-y:auto}
+.sheet-mask.show .sheet{transform:translateY(0)}
+.sheet-hd{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;
+  font-size:14px;font-weight:600;color:var(--brand-900);border-bottom:1px solid var(--line)}
+.sheet-hd .done{font-size:13px;color:var(--primary);font-weight:600;cursor:pointer;padding:4px 2px}
+.sheet-opts{padding:4px 0}
+.sheet-opt{display:flex;align-items:center;gap:12px;padding:12px 18px;min-height:50px;cursor:pointer}
+.sheet-opt:active{background:var(--canvas)}
+.sheet-opt .dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.sheet-opt .nm{flex:1;font-size:14px;color:var(--text)}
+.sheet-opt .cnt{font-size:12px;color:var(--muted)}
+.sheet-opt .ck{width:17px;height:17px;stroke:var(--primary);fill:none;stroke-width:2.4;opacity:0;flex-shrink:0}
+.sheet-opt.on .nm{color:var(--primary);font-weight:600}
+.sheet-opt.on .ck{opacity:1}
+
+/* 拨动提示 */
+.swipe-hint{display:flex;align-items:center;justify-content:center;gap:7px;padding:9px 16px 2px;
+  font-size:10px;color:#9AA6A1;user-select:none}
+.swipe-hint .arw{font-size:16px;color:var(--primary);line-height:1;opacity:.7;animation:nudge 1.8s ease-in-out infinite}
+.swipe-hint .arw.r{animation-delay:.9s}
+.swipe-hint b{color:var(--primary);font-weight:600}
+@keyframes nudge{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(3px);opacity:.9}}
+.swipe-hint .arw.l{animation-name:nudgeL}
+@keyframes nudgeL{0%,100%{transform:translateX(0);opacity:.45}50%{transform:translateX(-3px);opacity:.9}}
+
+/* 列表拨动切换动画 */
+.list.slide-in .card{animation:cardIn .3s cubic-bezier(.2,.8,.2,1) both}
+.list.slide-in .card:nth-child(2){animation-delay:.04s}
+.list.slide-in .card:nth-child(3){animation-delay:.08s}
+.list.slide-in .card:nth-child(4){animation-delay:.12s}
+@keyframes cardIn{from{opacity:0;transform:translateX(var(--dir,18px))}to{opacity:1;transform:none}}
+.list{transition:opacity .12s}
+
+/* 列表 */
+.list{padding:12px 16px 0;display:grid;gap:11px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:15px;padding:14px 14px 12px;
+  cursor:pointer;transition:transform .15s,box-shadow .15s}
+.card:active{transform:scale(.99);box-shadow:0 4px 14px rgba(23,46,57,.08)}
+.card-top{display:flex;align-items:center;gap:10px}
+.car-ico{width:58px;height:46px;border-radius:9px;background:linear-gradient(135deg,#F3F7EE,#EAF1E4);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden;
+  border:1px solid #E1EAD9}
+.car-ico.moto{background:linear-gradient(135deg,#F0F4F6,#E6EDF0);border-color:#DAE3E7}
+.car-ico img{width:100%;height:100%;object-fit:contain;object-position:center;display:block}
+.card-name{font-size:14px;font-weight:700;color:var(--brand-900);flex:1;min-width:0;overflow:hidden;
+  text-overflow:ellipsis;white-space:nowrap}
+.st{flex-shrink:0;font-size:10px;font-weight:600;padding:4px 9px;border-radius:9px;white-space:nowrap}
+.st.wait{color:var(--st-wait);background:var(--st-wait-bg)}
+.st.doing{color:var(--st-doing);background:var(--st-doing-bg)}
+.st.review{color:var(--st-review);background:var(--st-review-bg)}
+.st.fix{color:var(--st-fix);background:var(--st-fix-bg)}
+.st.done{color:var(--st-done);background:var(--st-done-bg)}
+.card-meta{font-family:ui-monospace,monospace;font-size:10px;color:var(--muted);margin-top:8px;
+  display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.card-meta .plate{color:#5E7069;background:var(--canvas);padding:2px 6px;border-radius:4px}
+.card-info{display:flex;gap:16px;margin-top:10px;padding-top:10px;border-top:1px solid var(--line)}
+.info-i{font-size:10px;color:var(--muted);min-width:0}
+.info-i b{display:block;color:#4A5A56;font-weight:500;font-size:11px;margin-top:2px;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis}
+.card-foot{display:flex;align-items:center;justify-content:space-between;margin-top:11px}
+.card-time{font-size:10px;color:var(--muted)}
+.card-act{font-size:11px;color:var(--primary);font-weight:600;display:flex;align-items:center;gap:3px}
+.card-act svg{width:12px;height:12px;stroke:var(--primary);fill:none;stroke-width:2}
+
+/* 空状态 */
+.empty{text-align:center;padding:64px 20px;color:var(--muted)}
+.empty .eic{width:56px;height:56px;border-radius:50%;background:var(--surface);border:1px solid var(--line);
+  display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+.empty .eic svg{width:26px;height:26px;stroke:#B9C3BE;fill:none;stroke-width:1.6}
+.empty .etx{font-size:13px;color:#5E7069}
+.empty .esub{font-size:11px;margin-top:6px}
+
+/* 底部说明 */
+.note{display:flex;align-items:flex-start;gap:7px;margin:14px 16px 0;padding:10px 12px;
+  background:#EEF3EF;border-radius:10px}
+.note svg{width:13px;height:13px;stroke:var(--success);fill:none;stroke-width:1.8;flex-shrink:0;margin-top:1px}
+.note span{font-size:10px;color:#5E7069;line-height:1.6}
+
+/* tabbar */
+.tabbar{height:64px;background:var(--surface);border-top:1px solid var(--line);display:grid;
+  grid-template-columns:repeat(4,1fr);align-items:center;padding-bottom:4px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10px;color:#8D999C;cursor:pointer}
+.tab svg{width:21px;height:21px;stroke:#8D999C;fill:none;stroke-width:1.7}
+.tab.on{color:var(--primary);font-weight:600}
+.tab.on svg{stroke:var(--primary)}
+
+/* Toast */
+.toast{position:absolute;left:50%;bottom:86px;transform:translateX(-50%) translateY(10px);
+  background:rgba(23,46,57,.92);color:#fff;font-size:12px;padding:10px 16px;border-radius:20px;
+  opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;white-space:nowrap;z-index:20}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.legend{width:100%;max-width:420px;margin-top:20px;background:#fff;border:1px solid var(--line);
+  border-radius:12px;padding:16px}
+.legend h4{font-size:13px;color:var(--brand-900);margin-bottom:10px}
+.legend ul{list-style:none;display:grid;gap:7px}
+.legend li{font-size:11px;color:#5E7069;line-height:1.6;padding-left:12px;position:relative}
+.legend li::before{content:"";position:absolute;left:0;top:7px;width:5px;height:5px;border-radius:50%;background:var(--primary)}
+.legend li .k{color:var(--brand-900);font-weight:600}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="tt"><b>检测订单</b> · 高保真原型</div>
+  <div class="hint">点状态按钮弹层选择 / 左右拨动列表切换</div>
+</div>
+
+<div class="phone" id="phone">
+  <div class="statusbar">
+    <span>9:41</span>
+    <span class="sb-r">
+      <svg viewBox="0 0 20 12"><path d="M1 9h2v3H1zM5 7h2v5H5zM9 4h2v8H9zM13 1h2v11h-2z"/></svg>
+      <svg viewBox="0 0 20 14"><path d="M10 13.2l-1.6-2C7 9.6 8 7 10 7s3 2.6 1.6 4.2zM4.5 7.6A8 8 0 0110 5a8 8 0 015.5 2.6l1.4-1.5A10 10 0 0010 3 10 10 0 003.1 6.1z"/></svg>
+      <svg viewBox="0 0 20 12"><rect x="1" y="1" width="15" height="10" rx="2" fill="none" stroke="#fff" stroke-width="1.2"/><rect x="3" y="3" width="10" height="6" rx="1"/><path d="M17 4h2v4h-2z"/></svg>
+    </span>
+  </div>
+
+  <div class="scroll" id="scroll">
+    <!-- 顶部横幅 -->
+    <div class="hero">
+      <div class="orbit">
+        <i></i><i></i><i></i>
+        <div class="core"><svg viewBox="0 0 24 24"><path d="M3 13l2-5h14l2 5M3 13h18v5H3zM7 18v2M17 18v2"/><circle cx="7.5" cy="15.5" r="1"/><circle cx="16.5" cy="15.5" r="1"/></svg></div>
+      </div>
+      <div class="hero-eyebrow">INSPECTION ORDERS</div>
+      <div class="hero-title">检测订单</div>
+      <div class="hero-sub">跟进每一次检测任务，从现场采集到报告发布。</div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div><span class="n">4</span><span class="u">单</span></div><div class="l">今日订单</div></div>
+        <div class="hero-stat"><div><span class="n">2</span><span class="u">单</span></div><div class="l">进行中</div></div>
+      </div>
+    </div>
+
+    <!-- 筛选：状态大按钮 -->
+    <div class="filterbar">
+      <div class="state-btn" id="stateBtn" onclick="openSheet()">
+        <span class="sb-label">状态</span>
+        <span class="sb-val" id="stateVal">全部</span>
+        <span class="sb-cnt" id="stateCnt">4 单</span>
+        <svg class="sb-arw" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </div>
+    </div>
+
+    <!-- 拨动提示 -->
+    <div class="swipe-hint">
+      <span class="arw l">‹</span>
+      <span>点上方状态选择 · 或左右拨动列表 · 当前 <b id="swipePos">全部</b></span>
+      <span class="arw r">›</span>
+    </div>
+
+    <!-- 订单列表 -->
+    <div class="list" id="list" ontouchstart="swipeStart(event)" ontouchend="swipeEnd(event)" onmousedown="swipeStart(event)" onmouseup="swipeEnd(event)"></div>
+
+    <!-- 底部说明 -->
+    <div class="note">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+      <span>检测订单由检测师创建，提交审核后才可能会对客户发布。</span>
+    </div>
+  </div>
+
+  <!-- tabbar -->
+  <div class="tabbar">
+    <div class="tab" onclick="toast('首页')">
+      <svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8M5 10v10h14V10"/></svg>首页
+    </div>
+    <div class="tab on">
+      <svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM15 3v5h4M9 12h7M9 16h7"/></svg>订单
+    </div>
+    <div class="tab" onclick="toast('审核')">
+      <svg viewBox="0 0 24 24"><path d="M9 11l2 2 4-4M20 12a8 8 0 1 1-8-8"/></svg>审核
+    </div>
+    <div class="tab" onclick="toast('我的')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>我的
+    </div>
+  </div>
+
+  <!-- 状态选择弹层 -->
+  <div class="sheet-mask" id="sheetMask" onclick="closeSheet(event)">
+    <div class="sheet" onclick="stopProp(event)">
+      <div class="sheet-hd">
+        <span>筛选状态</span>
+        <span class="done" onclick="closeSheet(event)">完成</span>
+      </div>
+      <div class="sheet-opts" id="sheetOpts"></div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+</div>
+
+<div class="legend">
+  <h4>设计要点（桌面表格 → 小程序卡片）</h4>
+  <ul>
+    <li><span class="k">删除红框</span>移除右上角「+ 新增检测订单」按钮，页面聚焦订单跟进本身。</li>
+    <li><span class="k">表格转卡片</span>桌面 6 列表格在窄屏收敛为卡片：车型+状态 → 编号+车牌 → 套餐/检测师 → 时间+操作。</li>
+    <li><span class="k">状态语义化</span>待检测=琥珀、检测中=蓝、待审核=紫、待修改=玫红、已完成=绿；每态均带文字，不单靠颜色传达。</li>
+    <li><span class="k">状态选择</span>顶部大按钮（14px）显示当前状态+数量，点击弹出底部面板：6 状态各带数量彩点与勾选，字号 14px、行高 50px 好点按；保留列表左右拨动切换。</li>
+    <li><span class="k">逼真车图</span>每张卡复用首页生成的透明底轿车/摩托车实拍图，一眼辨识车型。</li>
+    <li><span class="k">设计一致</span>沿用鉴见深青绿横幅与 token，与首页/我的页视觉语言统一。</li>
+    <li><span class="k">无障碍</span>标签与卡片触控高度 ≥32/44px，等宽字体呈现编号与车牌便于核对。</li>
+  </ul>
+</div>
+
+<script>
+(function () {
+  var CAR_IMG = 'assets/car_alpha.png', MOTO_IMG = 'assets/moto_alpha.png';
+  var ORDERS = [
+    { name:'丰田 RAV4 荣放', kind:'car', img:CAR_IMG, no:'JJC202611240018', plate:'粤A·6R02Q', pkg:'基础检测 · 国标', inspector:'林师傅', time:'今天 10:24', st:'wait',  stLabel:'待检测', act:'开始检测' },
+    { name:'本田 CB400',      kind:'moto', img:MOTO_IMG, no:'JJC202611230017', plate:'粤A·6M8A2', pkg:'摩托车检测 · 团标', inspector:'林师傅', time:'今天 09:16', st:'doing', stLabel:'检测中', act:'继续检测' },
+    { name:'大众 速腾 L',     kind:'car', img:CAR_IMG, no:'JJC202611220012', plate:'苏A·31R46', pkg:'四项检测 · 国标', inspector:'林师傅', time:'昨天 16:40', st:'done',  stLabel:'已完成', act:'查看详情' },
+    { name:'宝马 3 系',       kind:'car', img:CAR_IMG, no:'JJC202611220009', plate:'粤A·9K311', pkg:'基础检测 · 国标', inspector:'林师傅', time:'昨天 14:02', st:'fix',   stLabel:'待修改', act:'查看详情' }
+  ];
+  var FILTERS = ['全部','待检测','检测中','待审核','待修改','已完成'];
+  var ST2FILTER = { wait:'待检测', doing:'检测中', review:'待审核', fix:'待修改', done:'已完成' };
+  var current = '全部';
+
+  function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+  var ST_DOT = { '全部':'var(--primary)', '待检测':'var(--st-wait)', '检测中':'var(--st-doing)',
+    '待审核':'var(--st-review)', '待修改':'var(--st-fix)', '已完成':'var(--st-done)' };
+  function countOf(f){ return f==='全部' ? ORDERS.length : ORDERS.filter(function(o){return ST2FILTER[o.st]===f;}).length; }
+
+  // 状态大按钮：当前状态 + 数量
+  function renderStateBtn(){
+    var v=document.getElementById('stateVal'); if(v){ v.textContent=current; }
+    var c=document.getElementById('stateCnt'); if(c){ c.textContent=countOf(current)+' 单'; }
+  }
+
+  // 弹层选项：6 状态 + 数量 + 勾选
+  function renderSheetOpts(){
+    var box = document.getElementById('sheetOpts'); if(!box){ return; }
+    var html = '';
+    for(var i=0;i<FILTERS.length;i++){
+      var f = FILTERS[i];
+      html += '<div class="sheet-opt'+(f===current?' on':'')+'" data-f="'+f+'" onclick="pickFilter(this)">'
+            + '<span class="dot" style="background:'+ST_DOT[f]+'"></span>'
+            + '<span class="nm">'+esc(f)+'</span>'
+            + '<span class="cnt">'+countOf(f)+' 单</span>'
+            + '<svg class="ck" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>'
+            + '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  window.openSheet = function(){
+    renderSheetOpts();
+    var mask=document.getElementById('sheetMask'); if(mask){ mask.classList.add('show'); }
+    var btn=document.getElementById('stateBtn'); if(btn){ btn.classList.add('open'); }
+  };
+  window.closeSheet = function(e){
+    if(e && e.stopPropagation){ e.stopPropagation(); }
+    var mask=document.getElementById('sheetMask'); if(mask){ mask.classList.remove('show'); }
+    var btn=document.getElementById('stateBtn'); if(btn){ btn.classList.remove('open'); }
+  };
+  window.stopProp = function(e){ if(e && e.stopPropagation){ e.stopPropagation(); } };
+
+  function renderList(){
+    var list = ORDERS.filter(function(o){ return current==='全部' || ST2FILTER[o.st]===current; });
+    var box = document.getElementById('list');
+    if(list.length===0){
+      box.innerHTML = '<div class="empty"><div class="eic"><svg viewBox="0 0 24 24"><path d="M6 3h9l4 4v14H6zM15 3v5h4"/><path d="M9 13h7M9 17h5"/></svg></div>'
+        + '<div class="etx">暂无'+esc(current)+'订单</div><div class="esub">切换上方状态查看其他订单</div></div>';
+      return;
+    }
+    var html='';
+    for(var i=0;i<list.length;i++){
+      var o = list[i];
+      html += '<div class="card" onclick="openOrder(\''+esc(o.name)+'\')">'
+        + '<div class="card-top"><div class="car-ico '+o.kind+'"><img src="'+esc(o.img)+'" alt="'+esc(o.name)+'" /></div>'
+        + '<div class="card-name">'+esc(o.name)+'</div>'
+        + '<div class="st '+o.st+'">'+esc(o.stLabel)+'</div></div>'
+        + '<div class="card-meta"><span>'+esc(o.no)+'</span><span class="plate">'+esc(o.plate)+'</span></div>'
+        + '<div class="card-info"><div class="info-i">检测套餐<b>'+esc(o.pkg)+'</b></div><div class="info-i">检测师<b>'+esc(o.inspector)+'</b></div></div>'
+        + '<div class="card-foot"><span class="card-time">创建于 '+esc(o.time)+'</span>'
+        + '<span class="card-act">'+esc(o.act)+'<svg viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg></span></div>'
+        + '</div>';
+    }
+    box.innerHTML = html;
+  }
+
+  function applyFilter(f, dir){
+    if(f===current){ closeSheet(); return; }
+    current = f;
+    renderStateBtn(); renderList();
+    var pos = document.getElementById('swipePos');
+    if(pos){ pos.textContent = f; }
+    // 列表进入动画
+    var listEl = document.getElementById('list');
+    if(listEl){
+      listEl.style.setProperty('--dir', dir==='prev'?'-18px':'18px');
+      listEl.classList.remove('slide-in');
+      void listEl.offsetWidth; // 强制重排以重放动画
+      listEl.classList.add('slide-in');
+    }
+  }
+
+  window.pickFilter = function(el){
+    var f = el.getAttribute('data-f');
+    closeSheet();
+    if(f===current){ return; }
+    var oldIdx = FILTERS.indexOf(current), newIdx = FILTERS.indexOf(f);
+    applyFilter(f, newIdx<oldIdx?'prev':'next');
+    toast('状态：'+current);
+  };
+  window.openOrder = function(name){ if(!dragMoved) toast('打开订单：'+name); };
+
+  // 左右拨动切换状态（触摸 + 鼠标拖拽，方向：左滑=下一个，右滑=上一个）
+  var sx=0, sy=0, dragging=false, dragMoved=false;
+  window.swipeStart = function(e){
+    var p = (e.touches && e.touches[0]) ? e.touches[0] : e;
+    sx = p.clientX; sy = p.clientY; dragging = true; dragMoved = false;
+  };
+  window.swipeEnd = function(e){
+    if(!dragging){ return; }
+    dragging = false;
+    var p = (e.changedTouches && e.changedTouches[0]) ? e.changedTouches[0] : e;
+    var dx = p.clientX - sx, dy = p.clientY - sy;
+    if(Math.abs(dx) < 45 || Math.abs(dx) < Math.abs(dy)*1.2){ return; } // 非有效横向拨动
+    dragMoved = true;
+    var idx = FILTERS.indexOf(current);
+    var next = dx<0 ? Math.min(idx+1, FILTERS.length-1) : Math.max(idx-1, 0);
+    if(next===idx){ toast(dx<0?'已是最后一个状态':'已是第一个状态'); return; }
+    applyFilter(FILTERS[next], dx<0?'next':'prev');
+    toast('状态：'+current);
+    setTimeout(function(){ dragMoved=false; }, 60);
+  };
+
+  var t;
+  function toast(msg){
+    var el = document.getElementById('toast');
+    el.textContent = msg; el.classList.add('show');
+    clearTimeout(t); t = setTimeout(function(){ el.classList.remove('show'); }, 1600);
+  }
+  window.toast = toast;
+
+  renderStateBtn();
+  renderList();
+
+  // URL 参数预设筛选状态（须在事件绑定完成后执行）
+  var m = location.search.match(/[?&]filter=([^&]+)/);
+  if(m){
+    var target = decodeURIComponent(m[1]);
+    if(FILTERS.indexOf(target)>-1){
+      current=target; renderStateBtn(); renderList();
+      var sp=document.getElementById('swipePos'); if(sp){ sp.textContent=target; }
+    }
+  }
+  if(/[?&]scroll=bottom/.test(location.search)){
+    document.getElementById('scroll').scrollTop = 2000;
+  }
+})();
+</script>
+</body>
+</html>
